@@ -1,0 +1,33 @@
+﻿@page
+@model WebLibrary.Pages.Settings.SettingsModel
+@{
+    ViewData["Title"] = "设置";
+    var IsAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("图书馆管理员");
+}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="text-center mb-4">
+                <h2><i class="bi bi-gear-fill text-primary me-2"></i>设置</h2>
+            </div>
+
+            <div class="d-grid gap-3">
+                <!-- 退出登录 -->
+                <form method="post" asp-page-handler="Logout">
+                    <button type="submit" class="btn btn-danger btn-lg shadow-sm w-100">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        退出登录
+                    </button>
+                </form>
+
+                @if (IsAdmin)
+                {
+                    <a class="btn btn-success btn-lg shadow-sm" asp-area="" asp-page="/Settings/DataExtract">
+                        <i class="bi bi-download me-2"></i>
+                        导出数据
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

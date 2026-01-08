@@ -1,0 +1,24 @@
+﻿@page
+@model WebLibrary.Pages.Settings.DataExtractModel
+@{
+	ViewData["Title"] = "数据导出";
+}
+<form method="post">
+	<div class="form-group">
+		<label for="exportType">导出类型</label>
+		<select id="exportType" class="form-control" asp-for="ExtractType" required>
+			<option value="All">全部数据</option>
+			<option value="Books">书籍数据</option>
+			<option value="Users">用户数据</option>
+		</select>
+	</div>
+	
+	<div class="form-group">
+		<label for="fileFormat">文件格式</label>
+		<select id="fileFormat" class="form-control" asp-for="ExtractFormat" required>
+			<option value="CSV">CSV格式</option>
+			<option value="JSON">JSON格式</option>
+		</select>
+	</div>
+	<button type="submit" class="btn btn-primary">导出数据</button>
+</form>
