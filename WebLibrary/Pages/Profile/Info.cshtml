@@ -1,0 +1,732 @@
+@page
+@model WebLibrary.Pages.Profile.ProfileModel
+@{
+  // string Q1 = Model.qas.Q1;
+  // string Q2 = Model.qas.Q2;
+  // string Q3 = Model.qas.Q3;
+  // string A1 = Model.qas.A1;
+  // string A2 = Model.qas.A2;
+  // string A3 = Model.qas.A3;
+}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>个人信息</title>
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+<style>
+  .hidden {
+    display: none;
+  }
+</style>
+<body>
+  <!-- 图书馆用户主页包装在专用容器中 -->
+  <div class="library-profile-container">
+    <div class="wrap">
+      <!-- Cover area -->
+      <partial name="_SpaceCover" />
+
+      <!-- Main area - 全宽度布局 -->
+      <div class="main">
+        <div class="card">
+          <partial name="_SpaceNav" />
+
+          <h3 style="margin-bottom:24px; font-size: 20px;">个人信息</h3>
+
+          <!-- 通知容器 -->
+          <div id="notificationContainer" class="notification-container"></div>
+
+          <!-- 个人信息表单 -->
+          <form id="profileForm" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="info-form">
+              <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="UserName" value="@Model.UserInfo.UserName" 
+                       class="readonly-mode" readonly required>
+                <div id="username-error" class="error-message hidden"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">邮箱地址</label>
+                <input type="email" id="email" name="Email" value="@Model.UserInfo.Email" 
+                       class="readonly-mode" readonly>
+                <div id="email-error" class="error-message hidden"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">手机号码</label>
+                <input type="tel" id="phone" name="Phone" value="@Model.UserInfo.Phone" 
+                       class="readonly-mode" readonly>
+                <div id="phone-error" class="error-message hidden"></div>
+              </div>
+              
+              <div class="form-group">
+                <label>账户状态</label>
+                <div style="margin-top: 8px;">
+                  <span class="status-badge status-active">@Model.UserInfo.Status</span>
+                  @if (Model.UserInfo.IsLimited)
+                  {
+                    <span class="status-badge status-limited">受限</span>
+                  }
+                </div>
+              </div>
+
+              <!-- 个人信息操作按钮 -->
+              <div class="form-actions">
+                <!-- 默认显示的按钮 -->
+                <div id="defaultButtons">
+                  <button type="button" class="btn btn-primary" id="editInfoBtn">编辑信息</button>
+                  <button type="button" class="btn btn-primary" id="editPasswordBtn">更改密码</button>
+                  <button type="button" class="btn btn-primary" id="editSecurityQuestionBtn">设置密保问题</button>
+                </div>
+                
+                <!-- 编辑状态按钮（初始完全隐藏） -->
+                <div id="editButtons" class="hidden">
+                  <button type="submit" class="btn btn-primary" id="saveInfoBtn">保存信息</button>
+                  <button type="button" class="btn btn-secondary" id="cancelInfoBtn">取消编辑</button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <!-- 密码修改表单（初始隐藏） -->
+          <div class="password-section hidden" id="passwordSection">
+            <h4 style="margin-bottom: 16px;">更改密码</h4>
+            <form id="passwordForm" method="post" novalidate>
+              @Html.AntiForgeryToken()
+              <div class="info-form">
+                <div class="form-group">
+                  <label for="newPassword">新密码</label>
+                  <input type="password" id="newPassword" name="NewPassword" 
+                         placeholder="请输入新密码（至少6位）" required>
+                  <div id="newPassword-error" class="error-message hidden"></div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="confirmPassword">确认密码</label>
+                  <input type="password" id="confirmPassword" name="ConfirmPassword" 
+                         placeholder="请再次输入新密码" required>
+                  <div id="confirmPassword-error" class="error-message hidden"></div>
+                </div>
+
+                <!-- 密码修改操作按钮 -->
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-danger">保存密码</button>
+                  <button type="button" class="btn btn-secondary" id="cancelPasswordBtn">取消修改</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- 密保问题修改表单（初始隐藏） -->
+          <div class="security-section hidden" id="securitySection">
+            <h4 style="margin-bottom: 16px;">设置密保问题</h4>
+            <form id="securityForm" method="post" novalidate>
+              @Html.AntiForgeryToken()
+              <div class="info-form">
+
+                <div class="form-group">
+                  <label for="questionOne">问题1</label>
+                  <input type="text" id="questionOne" asp-for="qas.Q1"
+                         value="@Model.qas.Q1">
+                  <!-- <div id="questionOne-error" class="error-message hidden"></div> -->
+                </div>
+                <div class="form-group">
+                  <label for="answerOne">回答1</label>
+                  <input type="text" id="answerOne" asp-for="qas.A1"
+                         >
+                  <!-- <div id="answerOne-error" class="error-message hidden"></div> -->
+                </div>
+
+                <div class="form-group">
+                  <label for="questionTwo">问题2</label>
+                  <input type="text" id="questionTwo" asp-for="qas.Q2" 
+                         value="@Model.qas.Q2">
+                  <!-- <div id="questionTwo-error" class="error-message hidden"></div> -->
+                </div>
+                <div class="form-group">
+                  <label for="answerTwo">回答2</label>
+                  <input type="text" id="answerTwo" asp-for="qas.A2"
+                         >
+                  <!-- <div id="answerTwo-error" class="error-message hidden"></div> -->
+                </div>
+
+                <div class="form-group">
+                  <label for="questionThree">问题3</label>
+                  <input type="text" id="questionThree" asp-for="qas.Q3"
+                         value="@Model.qas.Q3">
+                  <!-- <div id="questionThree-error" class="error-message hidden"></div> -->
+                </div>
+                <div class="form-group">
+                  <label for="answerThree">回答3</label>
+                  <input type="text" id="answerThree" asp-for="qas.A3"
+                         >
+                  <!-- <div id="answerThree-error" class="error-message hidden"></div> -->
+                </div>
+
+                <!-- 密保问题修改操作按钮 -->
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-danger">保存密保问题</button>
+                  <button type="button" class="btn btn-secondary" id="cancelSecurityQuestionBtn">取消修改</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 头像查看弹窗 -->
+  <partial name="_SpaceAvatar" />
+
+  @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+  }
+  <script src="/js/profile.js"></script>
+  <script>
+    // 状态管理
+    let isEditingInfo = false;
+    let isEditingPassword = false;
+    let isEditingSecurity = false;
+
+    // DOM 元素 
+    const editInfoBtn = document.getElementById('editInfoBtn');
+    const editPasswordBtn = document.getElementById('editPasswordBtn');
+    const editSecurityQuestionBtn = document.getElementById('editSecurityQuestionBtn');
+    const saveInfoBtn = document.getElementById('saveInfoBtn');
+    const cancelInfoBtn = document.getElementById('cancelInfoBtn');
+    const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+    const cancelSecurityQuestionBtn = document.getElementById('cancelSecurityQuestionBtn');
+    const passwordSection = document.getElementById('passwordSection');
+    const securitySection = document.getElementById('securitySection');
+    const profileForm = document.getElementById('profileForm');
+    const passwordForm = document.getElementById('passwordForm');
+    const securityForm = document.getElementById('securityForm');
+    const defaultButtons = document.getElementById('defaultButtons');
+    const editButtons = document.getElementById('editButtons');
+
+    // 可编辑字段
+    const editableFields = ['username', 'email', 'phone'];
+    
+    // 原始值存储
+    let originalValues = {};
+
+    // 初始化 - 存储原始值
+    function storeOriginalValues() {
+      editableFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+          originalValues[fieldId] = field.value;
+        }
+      });
+    }
+
+    function updateAnswerState(questionId, answerId) {
+      const q = document.getElementById(questionId);
+      const a = document.getElementById(answerId);
+
+      if (!q || !a) return;
+
+      if (q.value.trim() === "") {
+        a.value = "";
+        a.disabled = true;
+        a.placeholder = "请先输入问题...";
+      } else {
+        a.disabled = false;
+        a.placeholder = "";
+      }
+    }
+
+    // 进入信息编辑模式
+    function enterEditMode() {
+      isEditingInfo = true;
+      
+      // 切换字段状态
+      editableFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+          field.removeAttribute('readonly');
+          field.className = 'edit-mode';
+        }
+      });
+
+      // 切换按钮组显示状态
+      defaultButtons.classList.add('hidden');
+      editButtons.classList.remove('hidden');
+
+      // 隐藏密码区域
+      if (isEditingPassword) {
+        cancelPasswordEdit();
+      }
+      if (isEditingSecurity) {
+        cancelSecurityEdit();
+      }
+    }
+
+    // 退出信息编辑模式
+    function exitEditMode() {
+      isEditingInfo = false;
+      
+      // 恢复字段状态
+      editableFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+          field.setAttribute('readonly', true);
+          field.className = 'readonly-mode';
+        }
+      });
+
+      // 恢复按钮组显示状态
+      defaultButtons.classList.remove('hidden');
+      editButtons.classList.add('hidden');
+
+      // 清除错误信息
+      clearErrors();
+    }
+
+    // 进入密码修改模式
+    function enterPasswordEdit() {
+      isEditingPassword = true;
+      
+      // 显示密码区域
+      passwordSection.classList.remove('hidden');
+      
+      // 隐藏默认按钮组
+      defaultButtons.classList.add('hidden');
+
+      // 如果正在编辑信息，先退出
+      if (isEditingInfo) {
+        exitEditMode();
+      }
+
+      // 清空密码字段
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+    }
+
+    // 退出密码修改模式
+    function cancelPasswordEdit() {
+      isEditingPassword = false;
+      
+      // 隐藏密码区域
+      passwordSection.classList.add('hidden');
+      
+      // 显示默认按钮组
+      defaultButtons.classList.remove('hidden');
+
+      // 清除密码字段和错误信息
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+      clearPasswordErrors();
+    }
+
+    // 进入密保问题修改模式
+    function enterSecurityEdit() {
+      isEditingSecurity = true;
+      
+      // 显示密保问题区域
+      securitySection.classList.remove('hidden');
+      
+      // 隐藏默认按钮组
+      defaultButtons.classList.add('hidden');
+
+      // 如果正在编辑信息，先退出
+      if (isEditingInfo) {
+        exitEditMode();
+      }
+
+      // 清空密保问题答案字段
+      // document.getElementById('questionOne').value = '';
+      document.getElementById('answerOne').value = '';
+      // document.getElementById('questionTwo').value = '';
+      document.getElementById('answerTwo').value = '';
+      // document.getElementById('questionThree').value = '';
+      document.getElementById('answerThree').value = '';
+    }
+
+    // 退出密保问题修改模式
+    function cancelSecurityEdit() {
+      isEditingSecurity = false;
+      
+      // 隐藏密码区域
+      securitySection.classList.add('hidden');
+      
+      // 显示默认按钮组
+      defaultButtons.classList.remove('hidden');
+
+      // 清除密码字段和错误信息
+      document.getElementById('questionOne').value = '';
+      document.getElementById('answerOne').value = '';
+      document.getElementById('questionTwo').value = '';
+      document.getElementById('answerTwo').value = '';
+      document.getElementById('questionThree').value = '';
+      document.getElementById('answerThree').value = '';
+      // clearSecurityErrors();
+    }
+
+    // 恢复原始值
+    function restoreOriginalValues() {
+      editableFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field && originalValues[fieldId] !== undefined) {
+          field.value = originalValues[fieldId];
+        }
+      });
+    }
+
+    // 清除错误信息
+    function clearErrors() {
+      editableFields.forEach(fieldId => {
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (errorDiv) {
+          errorDiv.classList.add('hidden');
+          errorDiv.textContent = '';
+        }
+      });
+    }
+
+    // 清除密码错误信息
+    function clearPasswordErrors() {
+      ['newPassword', 'confirmPassword'].forEach(fieldId => {
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (errorDiv) {
+          errorDiv.classList.add('hidden');
+          errorDiv.textContent = '';
+        }
+      });
+    }
+
+    // // 清除密保问题错误信息
+    // function clearSecurityErrors() {
+    //   ['questionOne', 'questionTwo', 'questionThree', 'answerOne', 'answerTwo', 'answerThree'].forEach(fieldId => {
+    //     const errorDiv = document.getElementById(fieldId + '-error');
+    //     if (errorDiv) {
+    //       errorDiv.classList.add('hidden');
+    //       errorDiv.textContent = '';
+    //     }
+    //   });
+    // }
+
+    // 客户端验证
+    function validateProfileForm() {
+      let isValid = true;
+      clearErrors();
+
+      // 验证用户名
+      const username = document.getElementById('username').value.trim();
+      if (!username) {
+        showError('username', '用户名不能为空');
+        isValid = false;
+      }
+
+      // 验证邮箱格式
+      const email = document.getElementById('email').value.trim();
+      if (email && !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email)) {
+        showError('email', '邮箱格式不正确');
+        isValid = false;
+      }
+
+      // 验证手机号格式
+      const phone = document.getElementById('phone').value.trim();
+      if (phone && !/^1[3-9]\d{9}$/.test(phone)) {
+        showError('phone', '手机号格式不正确');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // 验证密码表单
+    function validatePasswordForm() {
+      let isValid = true;
+      clearPasswordErrors();
+
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (!newPassword) {
+        showError('newPassword', '请输入新密码');
+        isValid = false;
+      } else if (newPassword.length < 6) {
+        showError('newPassword', '密码长度不能少于6位');
+        isValid = false;
+      } else if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
+        showError('newPassword', '密码必须包含字母和数字');
+        isValid = false;
+      }
+
+      if (!confirmPassword) {
+        showError('confirmPassword', '请确认新密码');
+        isValid = false;
+      } else if (newPassword !== confirmPassword) {
+        showError('confirmPassword', '两次密码输入不一致');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // 验证密保问题表单
+    function validateSecurityForm() {
+      let isValid = true;
+      // clearPasswordErrors();
+
+      const q1 = document.getElementById('QuestionOne').value;
+      const q2 = document.getElementById('QuestionTwo').value;
+      const q3 = document.getElementById('QuestionThree').value;
+      const a1 = document.getElementById('AnswerOne').value;
+      const a2 = document.getElementById('AnswerTwo').value;
+      const a3 = document.getElementById('AnswerThree').value;
+
+      if (q1 && !a1) {
+        showError('Answer1', '问题1没有答案！');
+        isValid = false;
+      }
+      if (q2 && !a2) {
+        showError('Answer2', '问题2没有答案！');
+        isValid = false;
+      }
+      if (q3 && !a3) {
+        showError('Answer3', '问题3没有答案！');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // 显示错误信息
+    function showErrorMessage(fieldId, message) {
+      const errorDiv = document.getElementById(fieldId + '-error');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+      }
+    }
+
+    // 获取防伪令牌
+    function getAntiForgeryToken() {
+      return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+    }
+
+    // 事件监听器
+    editInfoBtn.addEventListener('click', () => {
+      storeOriginalValues();
+      enterEditMode();
+    });
+
+    editPasswordBtn.addEventListener('click', enterPasswordEdit);
+
+    editSecurityQuestionBtn.addEventListener('click', enterSecurityEdit);
+
+    cancelInfoBtn.addEventListener('click', () => {
+      restoreOriginalValues();
+      exitEditMode();
+    });
+
+    cancelPasswordBtn.addEventListener('click', cancelPasswordEdit);
+
+    cancelSecurityQuestionBtn.addEventListener('click', cancelSecurityEdit);
+
+    document.getElementById("questionOne").addEventListener("input", () => {
+      updateAnswerState("questionOne", "answerOne");
+    });
+
+    document.getElementById("questionTwo").addEventListener("input", () => {
+      updateAnswerState("questionTwo", "answerTwo");
+    });
+
+    document.getElementById("questionThree").addEventListener("input", () => {
+      updateAnswerState("questionThree", "answerThree");
+    });
+
+    // 表单提交处理
+    profileForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // 阻止默认提交
+      
+      if (!validateProfileForm()) {
+        return;
+      }
+
+      // 提交表单
+      submitProfileForm();
+    });
+
+    passwordForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // 阻止默认提交
+      
+      if (!validatePasswordForm()) {
+        return;
+      }
+
+      // 提交表单
+      submitPasswordForm();
+    });
+
+    securityForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // 阻止默认提交
+
+      // if (!validateSecurityForm()) {
+      //   return;
+      // }
+
+      // 提交表单
+      submitSecurityForm();
+    });
+
+    // 提交个人信息表单
+    function submitProfileForm() {
+      const formData = new FormData(profileForm);
+      
+      // 显示加载状态
+      const loadingNotification = showNotification('info', '正在更新', '请稍候...', 30000);
+      
+      fetch(window.location.pathname + '?handler=UpdateProfile', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'RequestVerificationToken': getAntiForgeryToken()
+        }
+      })
+      .then(response => {
+        // 移除加载通知
+        if (loadingNotification.parentElement) {
+          loadingNotification.remove();
+        }
+        
+        if (response.ok) {
+          showSuccess('更新成功', '个人信息已成功更新');
+          exitEditMode();
+          // 更新存储的原始值
+          storeOriginalValues();
+        } else {
+          return response.text().then(text => {
+            throw new Error(text || '更新失败');
+          });
+        }
+      })
+      .catch(error => {
+        // 移除加载通知
+        if (loadingNotification.parentElement) {
+          loadingNotification.remove();
+        }
+        
+        console.error('Error:', error);
+        showError('更新失败', error.message || '请稍后重试');
+      });
+    }
+
+    // 提交密码表单
+    function submitPasswordForm() {
+      const formData = new FormData(passwordForm);
+      
+      // 显示加载状态
+      const loadingNotification = showNotification('info', '正在更新', '请稍候...', 30000);
+      
+      fetch(window.location.pathname + '?handler=UpdatePassword', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'RequestVerificationToken': getAntiForgeryToken()
+        }
+      })
+      .then(response => {
+        // 移除加载通知
+        if (loadingNotification.parentElement) {
+          loadingNotification.remove();
+        }
+        
+        if (response.ok) {
+          showSuccess('密码更新成功', '您的密码已安全更新');
+          cancelPasswordEdit();
+        } else {
+          return response.text().then(text => {
+            throw new Error(text || '密码更新失败');
+          });
+        }
+      })
+      .catch(error => {
+        // 移除加载通知
+        if (loadingNotification.parentElement) {
+          loadingNotification.remove();
+        }
+        
+        console.error('Error:', error);
+        showError('更新失败', error.message || '请稍后重试');
+      });
+    }
+
+    // 提交密保问题表单
+    function submitSecurityForm() {
+      const formData = new FormData(securityForm);
+      
+      // 显示加载状态
+      const loadingNotification = showNotification('info', '正在更新', '请稍候...', 30000);
+      
+      fetch(window.location.pathname + '?handler=UpdateSecurity', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'RequestVerificationToken': getAntiForgeryToken()
+        }
+      })
+      .then(response => {
+        // 移除加载通知
+        if (loadingNotification.parentElement) {
+          loadingNotification.remove();
+        }
+        
+        if (response.ok) {
+          showSuccess('密保问题更新成功', '');
+          cancelSecurityEdit();
+        } else {
+          return response.text().then(text => {
+            throw new Error(text || '密保问题更新失败');
+          });
+        }
+      })
+      .catch(error => {
+        // 移除加载通知
+        if (loadingNotification.parentElement) {
+          loadingNotification.remove();
+        }
+        
+        console.error('Error:', error);
+        showError('更新失败', error.message || '请稍后重试');
+      });
+    }
+
+    // 实时密码确认验证
+    document.getElementById('confirmPassword').addEventListener('input', (e) => {
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = e.target.value;
+      
+      if (confirmPassword && newPassword !== confirmPassword) {
+        showErrorMessage('confirmPassword', '两次密码输入不一致');
+      } else {
+        const errorDiv = document.getElementById('confirmPassword-error');
+        errorDiv.classList.add('hidden');
+      }
+    });
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化原始值存储
+      storeOriginalValues();
+      updateAnswerState("questionOne", "answerOne");
+      updateAnswerState("questionTwo", "answerTwo");
+      updateAnswerState("questionThree", "answerThree");
+      
+      // 检查是否有成功消息（从后端传来）
+      const tempDataMessage = '@TempData["SuccessMessage"]';
+      if (tempDataMessage && tempDataMessage !== '' && tempDataMessage !== '@TempData["SuccessMessage"]') {
+        showSuccessMessage(tempDataMessage);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+@page
+@model WebLibrary.Pages.Lecture.LectureManagementModel
+@{
+    ViewData["Title"] = "活动管理";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-primary">活动管理</h4>
+    <div>
+        <a asp-page="/Lecture/LectureManagement" asp-page-handler="Manage" class="btn btn-outline-primary me-2">
+            <i class="bi bi-gear"></i> 管理活动
+        </a>
+        <a asp-page="/Lecture/AddLecture" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> 新增活动
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["DebugInfo"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle me-2"></i>
+        @TempData["DebugInfo"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<form method="post" id="deleteForm">
+    @Html.AntiForgeryToken()
+</form>
+
+@if (Model.Lectures.Any())
+{
+    <div class="row">
+        @foreach (var lecture in Model.Lectures)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 lecture-card">
+                    @if (lecture.Picture != null && lecture.Picture.Length > 0)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(lecture.Picture)" 
+                             class="card-img-top lecture-image" alt="@lecture.Name" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top lecture-image-placeholder d-flex align-items-center justify-content-center">
+                            <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">@lecture.Name</h5>
+                        <p class="card-text">
+                            <strong>主讲人：</strong>@lecture.Speaker<br>
+                            <strong>日期：</strong>@lecture.LectureDate.ToString("yyyy-MM-dd HH:mm")
+                        </p>
+                        <div class="card-text mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">@lecture.NowNum/@lecture.MaxNum 人</span>
+                                <small class="text-muted">
+                                    @if (lecture.NowNum >= lecture.MaxNum)
+                                    {
+                                        <span class="text-danger">已满员</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success">可报名</span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(lecture.Summary))
+                        {
+                            <p class="card-text summary-text">
+                                @(lecture.Summary.Length > 100 ? lecture.Summary.Substring(0, 100) + "..." : lecture.Summary)
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">ID: @lecture.Id</small>
+                            <div>
+                                <a asp-page="/Lecture/EditLecture" asp-route-id="@lecture.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> 编辑
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="deleteLecture(@lecture.Id, '@lecture.Name')">
+                                    <i class="bi bi-trash"></i> 删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle me-2"></i>
+        暂无活动数据，请点击"新增活动"按钮添加第一个活动。
+    </div>
+}
+
+<style>
+    .lecture-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #e9ecef;
+    }
+
+    .lecture-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .lecture-image {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .lecture-image-placeholder {
+        height: 200px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .summary-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+
+    .card-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+    }
+</style>
+
+<script>
+    function deleteLecture(id, name) {
+        if (confirm(`确定要删除活动"${name}"吗？此操作不可撤销。`)) {
+            // 获取反伪造令牌
+            const token = document.querySelector('#deleteForm input[name="__RequestVerificationToken"]')?.value;
+            if (!token) {
+                alert('安全令牌缺失，请刷新页面重试。');
+                return;
+            }
+            
+            // 创建表单数据
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('__RequestVerificationToken', token);
+            
+            fetch(`/Lecture/LectureManagement?handler=Delete`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('删除失败，请重试。');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除失败，请重试。');
+            });
+        }
+    }
+</script> 

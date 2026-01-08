@@ -1,0 +1,175 @@
+@page
+@model WebLibrary.Pages.Guide.ReaderNoticeModel
+@{
+    ViewData["Title"] = "读者须知";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Guide">指南</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">读者须知</li>
+                </ol>
+            </nav>
+            
+            <h2 class="mb-4">
+                <i class="bi bi-person-check text-primary"></i> 读者须知
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- 基本规则 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-rulers"></i> 基本规则</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>保持安静：</strong>图书馆内请保持安静，不要大声喧哗，手机请调至静音模式
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>禁止吸烟：</strong>图书馆内严禁吸烟，包括电子烟
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>禁止饮食：</strong>阅览区域内禁止携带食物和饮料，水杯请放在指定位置
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>爱护图书：</strong>请爱护图书和设施，如有损坏需承担相应责任
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>遵守秩序：</strong>请按秩序排队，不要插队或占座
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 读者权益 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> 读者权益</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-star text-warning me-2"></i>
+                            <strong>免费借阅：</strong>持有效证件可免费借阅图书
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-star text-warning me-2"></i>
+                            <strong>免费上网：</strong>可使用图书馆提供的免费WiFi和电脑设备
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-star text-warning me-2"></i>
+                            <strong>咨询服务：</strong>可向工作人员咨询图书检索、借阅等问题
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-star text-warning me-2"></i>
+                            <strong>参与活动：</strong>可参加图书馆举办的各类文化活动
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-star text-warning me-2"></i>
+                            <strong>投诉建议：</strong>有权对图书馆服务提出建议和投诉
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 开放时间 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-clock"></i> 开放时间</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">周一</h6>
+                            <p class="mb-2">14:00 - 22:00</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">周二至周日</h6>
+                            <p class="mb-2">8:00 - 17:00</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">国定节假日</h6>
+                            <p class="mb-2">9:00 - 16:00</p>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>注意：</strong>法定节假日开放时间可能有所调整，请关注图书馆公告
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- 快速链接 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg"></i> 快速链接</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/Guide/BorrowNotice" class="btn btn-outline-primary">
+                            <i class="bi bi-book"></i> 借阅须知
+                        </a>
+                        <a href="/Guide/SmartGuide" class="btn btn-outline-success">
+                            <i class="bi bi-robot"></i> 智慧导览
+                        </a>
+                        <a href="/Guide/Transportation" class="btn btn-outline-info">
+                            <i class="bi bi-geo-alt"></i> 交通指南
+                        </a>
+                        <a href="/Account/Register" class="btn btn-outline-warning">
+                            <i class="bi bi-person-plus"></i> 注册读者
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="card">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-telephone"></i> 联系我们</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="bi bi-telephone-fill text-primary me-2"></i> 电话：1006811</p>
+                    <p><i class="bi bi-envelope-fill text-primary me-2"></i> 邮箱：yueluolib@example.com</p>
+                    <p><i class="bi bi-geo-alt-fill text-primary me-2"></i> 地址：上海市杨浦区淮海中路1555号</p>
+                    <p><i class="bi bi-clock-fill text-primary me-2"></i> 服务时间：8:00-17:00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header {
+        border-bottom: none;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+    
+    .breadcrumb {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .alert {
+        border-radius: 8px;
+    }
+</style> 

@@ -1,0 +1,279 @@
+@page
+@model WebLibrary.Pages.Lecture.LectureActivitiesModel
+@{
+    ViewData["Title"] = "讲座活动";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- 左侧：未来讲座活动 -->
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary">
+                    <i class="bi bi-calendar-event me-2"></i>讲座活动
+                </h3>
+                @if (!Model.IsAuthenticated)
+                {
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <a href="/Account/Login" class="alert-link">登录</a>后即可预约讲座
+                    </div>
+                }
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (Model.FutureLectures.Any())
+            {
+                <div class="row">
+                    @foreach (var lecture in Model.FutureLectures)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 lecture-card">
+                                @if (lecture.Picture != null && lecture.Picture.Length > 0)
+                                {
+                                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(lecture.Picture)" 
+                                         class="card-img-top lecture-image" alt="@lecture.Name" />
+                                }
+                                else
+                                {
+                                    <div class="card-img-top lecture-image-placeholder d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                }
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title text-truncate">@lecture.Name</h5>
+                                    <div class="lecture-info mb-3">
+                                        <p class="mb-1">
+                                            <i class="bi bi-person me-2"></i>
+                                            <strong>主讲人：</strong>@lecture.Speaker
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="bi bi-clock me-2"></i>
+                                            <strong>时间：</strong>@lecture.LectureDate.ToString("yyyy-MM-dd HH:mm")
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="bi bi-people me-2"></i>
+                                            <strong>人数：</strong>
+                                            <span class="badge @(lecture.NowNum >= lecture.MaxNum ? "bg-danger" : "bg-success")">
+                                                @lecture.NowNum/@lecture.MaxNum
+                                            </span>
+                                            @if (lecture.NowNum >= lecture.MaxNum)
+                                            {
+                                                <span class="text-danger ms-2">已满员</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-success ms-2">可预约</span>
+                                            }
+                                        </p>
+                                    </div>
+                                    
+                                    @if (!string.IsNullOrEmpty(lecture.Summary))
+                                    {
+                                        <p class="card-text summary-text">
+                                            @(lecture.Summary.Length > 100 ? lecture.Summary.Substring(0, 100) + "..." : lecture.Summary)
+                                        </p>
+                                    }
+                                </div>
+                                
+                                <div class="card-footer bg-transparent">
+                                    @if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        @if (lecture.IsReserved)
+                                        {
+                                            <div class="text-center">
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>已预约
+                                                </span>
+                                            </div>
+                                        }
+                                        else if (lecture.CanReserve)
+                                        {
+                                            <form method="post" asp-page-handler="Reserve" style="display: inline;">
+                                                <input type="hidden" name="lectureId" value="@lecture.Id" />
+                                                <button type="submit" class="btn btn-primary w-100">
+                                                    <i class="bi bi-calendar-plus me-2"></i>预约讲座
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center">
+                                                <span class="badge bg-secondary">
+                                                    <i class="bi bi-x-circle me-1"></i>已满员
+                                                </span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center">
+                                            <a href="/Account/Login" class="btn btn-outline-primary w-100">
+                                                <i class="bi bi-box-arrow-in-right me-2"></i>登录后预约
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    暂无未来的讲座活动，请稍后再来查看。
+                </div>
+            }
+        </div>
+
+        <!-- 右侧：我的活动预约 -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bookmark-heart me-2"></i>我的活动预约
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <div class="text-center">
+                            <i class="bi bi-person-circle text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">请先登录查看预约记录</p>
+                            <a href="/Account/Login" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>立即登录
+                            </a>
+                        </div>
+                    }
+                    else if (Model.MyReservations.Any())
+                    {
+                        <div class="reservation-list">
+                            @foreach (var reservation in Model.MyReservations)
+                            {
+                                <div class="reservation-item mb-3 p-3 border rounded">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 text-primary">@reservation.LectureName</h6>
+                                        <span class="badge bg-warning">等待中</span>
+                                    </div>
+                                    <p class="mb-1">
+                                        <small class="text-muted">
+                                            <i class="bi bi-person me-1"></i>@reservation.Speaker
+                                        </small>
+                                    </p>
+                                    <p class="mb-1">
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock me-1"></i>@reservation.LectureDate.ToString("MM-dd HH:mm")
+                                        </small>
+                                    </p>
+                                    <p class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar me-1"></i>预约时间：@reservation.ReservationDate.ToString("MM-dd HH:mm")
+                                        </small>
+                                    </p>
+                                    <form method="post" asp-page-handler="CancelReservation" style="display: inline;">
+                                        <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('确定要取消预约吗？')">
+                                            <i class="bi bi-x-circle me-1"></i>取消预约
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center">
+                            <i class="bi bi-bookmark text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">暂无预约记录</p>
+                            <small class="text-muted">预约的讲座将显示在这里</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .lecture-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #e9ecef;
+        height: 100%;
+    }
+
+    .lecture-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .lecture-image {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .lecture-image-placeholder {
+        height: 200px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .summary-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+
+    .lecture-info {
+        font-size: 0.9rem;
+    }
+
+    .lecture-info p {
+        margin-bottom: 0.5rem;
+    }
+
+    .reservation-item {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
+
+    .reservation-item:hover {
+        background-color: #e9ecef;
+    }
+
+    .reservation-list {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .card-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+    }
+
+    @@media (max-width: 991.98px) {
+        .col-lg-4 {
+            margin-top: 2rem;
+        }
+    }
+</style> 

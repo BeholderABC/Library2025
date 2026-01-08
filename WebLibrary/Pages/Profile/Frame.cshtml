@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>图书馆用户主页</title>
+  <link rel="stylesheet" href="/Profile/profile.css">
+</head>
+
+<body>
+  <!-- 图书馆用户主页包装在专用容器中 -->
+  <div class="library-profile-container">
+    <div class="wrap">
+      <!-- Cover area -->
+      <partial name="_SpaceCover" />
+
+      <!-- Main area - 全宽度布局 -->
+      <div class="main">
+        <div class="card">
+
+          <partial name="_SpaceNav" />
+
+          <div id="panel-recommend" class="panel">
+            <partial name="Recommend" />
+          </div>
+
+          <div id="panel-history" class="panel" style="display:none">
+            <partial name="History" />
+          </div>
+
+          <div id="panel-reviews" class="panel" style="display:none">
+            <partial name="Reviews" />
+          </div>
+
+          <div id="panel-info" class="panel" style="display:none">
+            <partial name="Info" />
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 头像查看弹窗 -->
+  <partial name="_SpaceAvatar" />
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+@page
+@using System.Text.Json
+@model WebLibrary.Pages.Profile.ProfileModel
+@{
+  int pageSize = 4;
+  int totalBooks = Model.HistoryBooks?.Count ?? 0;
+  int currentPage = 1;
+
+  var InterestJson = JsonSerializer.Serialize(
+      Model.InterestCates
+          .Where(kvp => kvp.Value != 0)
+          .Select(kvp => new { name = kvp.Key, value = kvp.Value })
+          .ToList()
+  );
+}
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>借阅历史</title>
+  <link rel="stylesheet" href="/css/profile.css">
+  <!-- 添加 图表 引用 -->
+  <script src="/js/rose.js"></script>
+  <style>
+  </style>
+</head>
+
+<body>
+  <div class="library-profile-container">
+    <div class="wrap">
+      <partial name="_SpaceCover" />
+
+      <div class="main">
+        <div class="card">
+          <partial name="_SpaceNav" />
+          <!-- 空状态 -->
+          @if (totalBooks == 0)
+          {
+            <div class="empty-state" id="emptyState">
+              <div style="font-size: 48px; margin-bottom: 16px;">📚</div>
+              <div style="font-size: 16px;">暂无借阅记录，快去借阅您感兴趣的图书吧！</div>
+            </div>
+          }
+          <div class="history-section">
+            <!-- 借阅记录列表 -->
+            <div class="history-list-container">
+              @if (totalBooks != 0)
+              {
+                // 生成所有图书，但默认隐藏
+                <div class="history-list" id="historyList">
+                @for (int i = 0; i < totalBooks; i++)
+                {
+                  var book = Model.HistoryBooks[i];
+                  <div class="history-item" onclick="viewBookDetails(@book.BookID)">
+                    <div class="book-cover">
+                      <img src="@book.CoverUrl" alt="@book.Title" />
+                    </div>
+                    <div class="book-details">
+                      <div class="book-title">@book.Title</div>
+                      <div class="book-author">@book.Author</div>
+                      <div class="borrow-info">@book.BorrowDate 至 @book.DueDate</div>
+                    </div>
+                    <div class="status-section">
+                      @if (book.Status == "reserved") {
+                        <div class="status-badge status-reserved">预约中</div>
+                        @if (book.BorrowTimeSpan.Days > 0) {
+                          <div class="time-info">等待 @book.BorrowTimeSpan.Days 天</div>
+                        }
+                        else {
+                          <div class="time-info">今日可取</div>
+                        }
+                      }
+                      else if (book.Status == "lending") {
+                        <div class="status-badge status-reading">阅读中</div>
+                        @if (book.BorrowTimeSpan.Days > 0) {
+                          <div class="time-info">剩余 @book.BorrowTimeSpan.Days 天</div>
+                        }
+                        else if (book.BorrowTimeSpan.Hours > 0)  {
+                          <div class="time-info">剩余 @book.BorrowTimeSpan.Hours 小时</div>
+                        }
+                        else if (book.BorrowTimeSpan.Minutes > 0)  {
+                          <div class="time-info">剩余 @book.BorrowTimeSpan.Minutes 分钟</div>
+                        }
+                      }
+                      else if (book.Status == "returned") {
+                        <div class="status-badge status-returned">已归还</div>
+                        <div class="status-badge status-returned">已按期归还</div>
+                      }
+                      else if (book.Status == "overdue") {
+                        <div class="status-badge status-overdue">已逾期</div>
+                        @if (book.BorrowTimeSpan.Days > 0) {
+                          <div class="time-info">逾期 @book.BorrowTimeSpan.Days 天</div>
+                        }
+                        else if (book.BorrowTimeSpan.Hours > 0)  {
+                          <div class="time-info">逾期 @book.BorrowTimeSpan.Hours 小时</div>
+                        }
+                        else if (book.BorrowTimeSpan.Minutes > 0)  {
+                          <div class="time-info">逾期 @book.BorrowTimeSpan.Minutes 分钟</div>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+                </div>
+              }
+              <!-- <div class="history-list" id="historyList">
+                <div class="history-item" onclick="viewBookDetails('1')">
+                  <div class="book-cover">
+                    <img src="https://via.placeholder.com/50x70/4f46e5/ffffff?text=算法" alt="书籍封面">
+                  </div>
+                  <div class="book-details">
+                    <div class="book-title">算法导论（原书第3版）</div>
+                    <div class="book-author">Thomas H. Cormen 等著</div>
+                    <div class="borrow-info">借阅：2024-08-15 → 应还：2024-09-15</div>
+                  </div>
+                  <div class="status-section">
+                    <div class="status-badge status-reading">阅读中</div>
+                    <div class="time-info">剩余12天</div>
+                  </div>
+                </div>
+                
+                <div class="history-item" onclick="viewBookDetails('2')">
+                  <div class="book-cover">
+                    <img src="https://via.placeholder.com/50x70/059669/ffffff?text=设计" alt="书籍封面">
+                  </div>
+                  <div class="book-details">
+                    <div class="book-title">设计心理学</div>
+                    <div class="book-author">唐纳德·A·诺曼</div>
+                    <div class="borrow-info">借阅：2024-07-20 → 归还：2024-08-10</div>
+                  </div>
+                  <div class="status-section">
+                    <div class="status-badge status-returned">已归还</div>
+                    <div class="time-info">按时归还</div>
+                  </div>
+                </div>
+                
+                <div class="history-item" onclick="viewBookDetails('3')">
+                  <div class="book-cover">
+                    <img src="https://via.placeholder.com/50x70/dc2626/ffffff?text=JS" alt="书籍封面">
+                  </div>
+                  <div class="book-details">
+                    <div class="book-title">JavaScript权威指南（第7版）</div>
+                    <div class="book-author">David Flanagan</div>
+                    <div class="borrow-info">借阅：2024-06-10 → 应还：2024-07-10</div>
+                  </div>
+                  <div class="status-section">
+                    <div class="status-badge status-overdue">已逾期</div>
+                    <div class="time-info">逾期5天</div>
+                  </div>
+                </div>
+                
+                <div class="history-item" onclick="viewBookDetails('4')">
+                  <div class="book-cover">
+                    <img src="https://via.placeholder.com/50x70/f59e0b/ffffff?text=AI" alt="书籍封面">
+                  </div>
+                  <div class="book-details">
+                    <div class="book-title">人工智能：一种现代的方法</div>
+                    <div class="book-author">Stuart Russell, Peter Norvig</div>
+                    <div class="borrow-info">预约：2024-08-25 → 预计可借：2024-09-01</div>
+                  </div>
+                  <div class="status-section">
+                    <div class="status-badge status-reserved">预约中</div>
+                    <div class="time-info">3天后可借</div>
+                  </div>
+                </div>
+              </div> -->
+              
+            </div>
+            <!-- 图表 -->
+            @if (totalBooks != 0)
+            {
+              <div class="chart-container">
+                <div id="readingChart"></div>
+              </div>
+            }
+          </div>
+          <!-- 分页组件 -->
+          <!-- 分页按钮将由JavaScript动态生成 -->
+          @if (totalBooks > 0)
+          {
+            <div class="pagination" id="paginationContainer"></div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <partial name="_SpaceAvatar" />
+
+<script>
+  // 图表初始化
+  document.addEventListener('DOMContentLoaded', function() {
+    var chartDom = document.getElementById('readingChart');
+    var myChart = echarts.init(chartDom);
+    
+    // var readingData = [
+    //   { value: 25, name: '文学小说' },
+    //   { value: 35, name: '技术编程' },
+    //   { value: 15, name: '历史人文' },
+    //   { value: 20, name: '科学科普' },
+    //   { value: 10, name: '艺术设计' },
+    //   { value: 8, name: '经济管理' },
+    //   { value: 12, name: '哲学宗教' }
+    // ];
+    var readingData = @Html.Raw(InterestJson);
+    
+    var option = {
+      title: {
+        text: '阅读偏好',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+      },
+      legend: {
+        left: 'right',
+        top: 'center',
+        orient: 'vertical'
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          name: 'Radius Mode',
+          type: 'pie',
+          radius: [30, 120],
+          center: ['37.5%', '50%'],
+          roseType: 'radius',
+          itemStyle: {
+            borderRadius: 5
+          },
+          label: {
+            show: false
+          },
+          labelLine: {
+            show: false
+          },
+          emphasis: {
+            label: {
+              show: true
+            }
+            // labelLine: {
+            //   show: false
+            // }
+          },
+          data: readingData,
+        }
+      ]
+    };
+    
+    myChart.setOption(option);
+    
+    window.addEventListener('resize', function() {
+      myChart.resize();
+    });
+  });
+  
+  // 分页功能
+  let currentPage = 1;
+  let totalPages = 3;
+  
+  function viewBookDetails(bookId) {
+    console.log('查看图书详情:', bookId);
+    // window.location.href = `/Books/BookDetail?id=${bookId}`
+    window.location.href = `/Borrow/Dashboard`
+  }
+  
+    // 初始化历史页面
+  function initializeHistory() {
+    const totalBooks = @totalBooks;
+    const pageSize = @pageSize;
+    const initialPage = @currentPage;
+    
+    if (totalBooks > 0) {
+      // 创建分页实例
+      bookPagination = new Pagination({
+        containerId: 'paginationContainer',
+        itemsSelector: '.library-profile-container .history-item',
+        pageSize: pageSize,
+        totalItems: totalBooks,
+        pagedContainer: 'historyList',
+        initialPage: initialPage,
+        pageParam: 'page',
+        onPageChange: function(page, pagination) {
+          const url = new URL(window.location);
+          url.searchParams.set('page', page);
+          window.history.pushState({}, '', url);
+        },
+        onInitialize: function(pagination) {
+          console.log('分页组件初始化完成', pagination.getStatus());
+        }
+      });
+    }
+  }
+
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', initializeHistory);
+
+  // 页面卸载时清理资源
+  window.addEventListener('beforeunload', () => {
+    if (bookPagination) {
+      bookPagination.destroy();
+    }
+  });
+  
+</script>
+</body>
+</html>

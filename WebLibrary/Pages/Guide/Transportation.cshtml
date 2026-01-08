@@ -1,0 +1,254 @@
+@page
+@model WebLibrary.Pages.Guide.TransportationModel
+@{
+    ViewData["Title"] = "交通指南";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Guide">指南</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">交通指南</li>
+                </ol>
+            </nav>
+            
+            <h2 class="mb-4">
+                <i class="bi bi-geo-alt text-info"></i> 交通指南
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- 图书馆位置 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-geo-alt-fill"></i> 图书馆位置</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">详细地址</h6>
+                            <p><i class="bi bi-building text-primary me-2"></i> 上海市杨浦区淮海中路1555号</p>
+                            <p><i class="bi bi-geo-alt text-primary me-2"></i> 邮编：200000</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">周边地标</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-shop text-success"></i> 五角场购物中心（步行5分钟）</li>
+                                <li><i class="bi bi-bus-front text-success"></i> 淮海公交站（步行3分钟）</li>
+                                <li><i class="bi bi-train-front text-success"></i> 四平路地铁站（步行8分钟）</li>
+                                <li><i class="bi bi-p-circle text-success"></i> 五角场停车场（步行2分钟）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 公共交通 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-bus-front"></i> 公共交通</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="transport-card">
+                                <div class="transport-icon bg-primary">
+                                    <i class="bi bi-bus-front"></i>
+                                </div>
+                                <h6>公交车</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>1路：</strong>邯郸路站 → 月落书院站</li>
+                                    <li><strong>5路：</strong>人民广场 → 月落书院</li>
+                                    <li><strong>12路：</strong>同济大学 → 月落书院</li>
+                                    <li><strong>23路：</strong>五角场 → 月落书院</li>
+                                </ul>
+                                <p class="text-muted small">运营时间：6:00-23:00</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="transport-card">
+                                <div class="transport-icon bg-success">
+                                    <i class="bi bi-train-front"></i>
+                                </div>
+                                <h6>地铁</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>1号线/2号线：</strong>四平路站下车，步行8分钟</li>
+                                </ul>
+                                <p class="text-muted small">运营时间：6:00-22:30</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="transport-card">
+                                <div class="transport-icon bg-warning">
+                                    <i class="bi bi-bicycle"></i>
+                                </div>
+                                <h6>共享单车</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>哈啰单车：</strong>图书馆门口有停车点</li>
+                                    <li><strong>美团单车：</strong>周边多个停车点</li>
+                                    <li><strong>青桔单车：</strong>地铁站附近有停车点</li>
+                                </ul>
+                                <p class="text-muted small">24小时可用</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="transport-card">
+                                <div class="transport-icon bg-info">
+                                    <i class="bi bi-car-front"></i>
+                                </div>
+                                <h6>出租车/网约车</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>滴滴出行：</strong>支持预约用车</li>
+                                    <li><strong>高德打车：</strong>多平台比价</li>
+                                    <li><strong>传统出租车：</strong>路边招手即停</li>
+                                </ul>
+                                <p class="text-muted small">24小时服务</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自驾路线 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-car-front"></i> 自驾路线</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">从人民广场出发</h6>
+                            <ol>
+                                <li>沿上海大道向北行驶</li>
+                                <li>在邯郸路路口右转</li>
+                                <li>继续直行500米</li>
+                                <li>在图书馆路口左转</li>
+                                <li>到达图书馆停车场</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>提示：</strong>图书馆提供免费停车场，请按指示牌停放车辆
+                    </div>
+                </div>
+            </div>
+
+            <!-- 停车场信息 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-p-circle"></i> 停车场信息</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="parking-info">
+                                <h6><i class="bi bi-p-circle text-primary"></i> 图书馆停车场</h6>
+                                <p><strong>位置：</strong>图书馆正门左侧</p>
+                                <p><strong>容量：</strong>50个车位</p>
+                                <p><strong>费用：</strong>免费（限时4小时）</p>
+                                <p><strong>开放时间：</strong>8:00-22:00</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="parking-info">
+                                <h6><i class="bi bi-p-circle text-success"></i> 周边停车场</h6>
+                                <p><strong>五角场购物中心：</strong>地下停车场，5元/小时</p>
+                                <p><strong>路边停车：</strong>2元/小时，限时2小时</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-telephone"></i> 交通咨询</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="bi bi-telephone text-primary me-2"></i> 咨询电话：1008611</p>
+                    <p><i class="bi bi-envelope text-primary me-2"></i> 邮箱：transporlib@library.com</p>
+                    <p><i class="bi bi-clock text-primary me-2"></i> 服务时间：8:00-17:00</p>
+                    <p><i class="bi bi-chat text-primary me-2"></i> 在线客服：24小时</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transport-card {
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        height: 100%;
+        text-align: center;
+    }
+    
+    .transport-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .parking-info {
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        height: 100%;
+    }
+    
+    .traffic-status .status-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .traffic-status .status-item:last-child {
+        border-bottom: none;
+    }
+    
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+    
+    .status-dot.online {
+        background-color:rgb(0, 83, 131);
+    }
+    
+    .status-dot.warning {
+        background-color:rgb(0, 83, 131);
+    }
+    
+    .status-dot.offline {
+        background-color:rgb(0, 83, 131);
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+    
+    .breadcrumb {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 0.75rem 1rem;
+    }
+</style>

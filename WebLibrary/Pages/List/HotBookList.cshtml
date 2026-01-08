@@ -1,0 +1,297 @@
+@page
+@model WebLibrary.Pages.List.HotBookListModel
+@{
+    ViewData["Title"] = "热门图书排行榜";
+    int pageSize = 10;
+    int categoryPageSize = 5; // 分类每页5本
+    int totalBooks = Model.HotBooks?.Count ?? 0;
+}
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>热门图书排行榜</title>
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+
+<body>
+  <!-- 使用与个人主页相同的容器结构 -->
+  <div class="library-profile-container">
+    <div class="wrap">
+      <!-- 主内容区域 -->
+      <div class="main">
+        <div class="card">
+          <!-- 页面标题 -->
+          <div class="page-header">
+            <h2 class="text-primary">热门图书排行榜</h2>
+          </div>
+
+          @if (ModelState.ErrorCount > 0)
+          {
+              <div class="error-message">
+                  @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                  {
+                      <p>@error.ErrorMessage</p>
+                  }
+              </div>
+          }
+          else if (Model.HotBooks.Any() || Model.CategoryHotBooks.Any())
+          {
+              <!-- 全站热门图书 -->
+              <div class="section">
+                  <h3 class="section-title">全站热门图书</h3>
+                  <div class="curated-list-container" id="allBookGrid">
+                      @for (int i = 0; i < Model.HotBooks.Count && i < 99; i++)
+                      {
+                          var book = Model.HotBooks[i];
+                          <div class="book" data-book-id="@book.BookId" data-page="@((i / pageSize) + 1)">
+                            <div class="book-cover">
+                              <img src="/api/bookcover/@book.BookId" alt="@book.Title" class="book-cover-img" onerror="this.style.display='none'" />
+                              <div class="book-rank">第 @(i + 1) 名</div>
+                              <div class="book-info">
+                                <div class="rating">
+                                  <span class="star">★</span>
+                                  <span>@string.Format("{0:0.0}", book.BookRating)</span>
+                                </div>
+                                <div>@book.BorrowCount 借阅</div>
+                              </div>
+                            </div>
+                            <div class="bmeta">
+                              <div class="btitle">@book.Title</div>
+                              <div class="bauthor">@book.Author</div>
+                              <div class="bstats">
+                                <span>@book.CategoryName</span>
+                                <span style="color: #10b981;">可借阅</span>
+                              </div>
+                            </div>
+                          </div>
+                      }
+                  </div>
+                  
+                  <!-- 全站热门图书分页 -->
+                  @if (Model.HotBooks.Count > pageSize)
+                  {
+                    <div class="pagination" id="allBookPagination"></div>
+                  }
+              </div>
+
+              <!-- 分类热门图书 -->
+              <div class="section">
+                  <h3 class="section-title">各板块热门图书</h3>
+                  @{
+                      int categoryIndex = 0;
+                  }
+                  @foreach (var category in Model.CategoryHotBooks)
+                  {
+                      <div class="category-section">
+                          <h4 class="category-title">@category.Key</h4>
+                          <div class="curated-list-container" id="categoryGrid-@(categoryIndex)">
+                              @for (int j = 0; j < category.Value.Count; j++)
+                              {
+                                  var book = category.Value[j];
+                                  <div class="book" data-book-id="@book.BookId" data-category="@categoryIndex" data-page="@((j / categoryPageSize) + 1)">
+                                    <div class="book-cover">
+                                      <img src="/api/bookcover/@book.BookId" alt="@book.Title" class="book-cover-img" onerror="this.style.display='none'" />
+                                      <div class="book-info">
+                                        <div class="rating">
+                                          <span class="star">★</span>
+                                          <span>@string.Format("{0:0.0}", book.BookRating)</span>
+                                        </div>
+                                        <div>@book.BorrowCount 借阅</div>
+                                      </div>
+                                    </div>
+                                    <div class="bmeta">
+                                      <div class="btitle">@book.Title</div>
+                                      <div class="bauthor">@book.Author</div>
+                                      <div class="bstats">
+                                        <span>@book.CategoryName</span>
+                                        <span style="color: #10b981;">可借阅</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                              }
+                          </div>
+                          
+                          <!-- 分类热门图书分页 -->
+                          @if (category.Value.Count > categoryPageSize)
+                          {
+                            <div class="pagination" id="categoryPagination-@(categoryIndex)"></div>
+                          }
+                      </div>
+                      categoryIndex++;
+                  }
+              </div>
+          }
+          else
+          {
+              <div class="empty">暂无热门图书数据</div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // 简单的分页实现
+  function createSimplePagination() {
+    // 全站热门图书分页
+    const allBooks = document.querySelectorAll('#allBookGrid .book');
+    const totalBooks = allBooks.length;
+    const pageSize = @pageSize;
+    
+    if (totalBooks > pageSize) {
+      createPagination('allBookPagination', allBooks, pageSize, 1, 'all');
+    } else {
+      allBooks.forEach(book => book.style.display = 'block');
+    }
+    
+    // 分类热门图书分页
+    const categorySections = document.querySelectorAll('.category-section');
+    categorySections.forEach((section, index) => {
+      const categoryBooks = section.querySelectorAll('.book');
+      if (categoryBooks.length > @categoryPageSize) {
+        createPagination(`categoryPagination-${index}`, categoryBooks, @categoryPageSize, 1, `category-${index}`);
+      } else {
+        categoryBooks.forEach(book => book.style.display = 'block');
+      }
+    });
+  }
+  
+  // 创建分页控件
+  function createPagination(containerId, items, pageSize, currentPage, type) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const totalItems = items.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    
+    // 清空分页容器
+    container.innerHTML = '';
+    
+    if (totalPages <= 1) return;
+    
+    // 添加上一页按钮
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '上一页';
+    prevButton.className = 'page-btn';
+    prevButton.style.margin = '0 10px';
+    prevButton.style.padding = '8px 16px';
+    prevButton.style.border = '1px solid #3b82f6';
+    prevButton.style.borderRadius = '4px';
+    prevButton.style.background = 'white';
+    prevButton.style.color = '#3b82f6';
+    prevButton.style.cursor = 'pointer';
+    prevButton.disabled = true;
+    container.appendChild(prevButton);
+    
+    // 添加页码按钮
+    for (let i = 1; i <= totalPages; i++) {
+      const pageButton = document.createElement('button');
+      pageButton.textContent = i;
+      pageButton.className = 'page-btn';
+      pageButton.style.margin = '0 5px';
+      pageButton.style.padding = '8px 12px';
+      pageButton.style.border = '1px solid #3b82f6';
+      pageButton.style.borderRadius = '4px';
+      pageButton.style.background = i === 1 ? '#3b82f6' : 'white';
+      pageButton.style.color = i === 1 ? 'white' : '#3b82f6';
+      pageButton.style.cursor = 'pointer';
+      
+      pageButton.addEventListener('click', () => {
+        showPage(items, pageSize, i, type);
+        updateButtonStyles(container, i, totalPages);
+        prevButton.disabled = i === 1;
+        nextButton.disabled = i === totalPages;
+      });
+      
+      container.appendChild(pageButton);
+    }
+    
+    // 添加下一页按钮
+    const nextButton = document.createElement('button');
+    nextButton.textContent = '下一页';
+    nextButton.className = 'page-btn';
+    nextButton.style.margin = '0 10px';
+    nextButton.style.padding = '8px 16px';
+    nextButton.style.border = '1px solid #3b82f6';
+    nextButton.style.borderRadius = '4px';
+    nextButton.style.background = 'white';
+    nextButton.style.color = '#3b82f6';
+    nextButton.style.cursor = 'pointer';
+    nextButton.disabled = totalPages === 1;
+    container.appendChild(nextButton);
+    
+    // 下一页按钮点击事件
+    nextButton.addEventListener('click', () => {
+      const activeButton = container.querySelector('.page-btn[style*="background: #3b82f6"]');
+      const currentPage = activeButton ? parseInt(activeButton.textContent) : 1;
+      if (currentPage < totalPages) {
+        showPage(items, pageSize, currentPage + 1, type);
+        updateButtonStyles(container, currentPage + 1, totalPages);
+        prevButton.disabled = currentPage + 1 === 1;
+        nextButton.disabled = currentPage + 1 === totalPages;
+      }
+    });
+    
+    // 上一页按钮点击事件
+    prevButton.addEventListener('click', () => {
+      const activeButton = container.querySelector('.page-btn[style*="background: #3b82f6"]');
+      const currentPage = activeButton ? parseInt(activeButton.textContent) : 1;
+      if (currentPage > 1) {
+        showPage(items, pageSize, currentPage - 1, type);
+        updateButtonStyles(container, currentPage - 1, totalPages);
+        prevButton.disabled = currentPage - 1 === 1;
+        nextButton.disabled = currentPage - 1 === totalPages;
+      }
+    });
+    
+    // 默认显示第一页
+    showPage(items, pageSize, 1, type);
+  }
+  
+  // 显示指定页面的函数
+  function showPage(items, pageSize, pageNumber, type) {
+    items.forEach(item => {
+      const itemPage = parseInt(item.getAttribute('data-page'));
+      item.style.display = itemPage === pageNumber ? 'block' : 'none';
+    });
+  }
+  
+  // 更新按钮样式的函数
+  function updateButtonStyles(container, activePage, totalPages) {
+    const buttons = container.querySelectorAll('.page-btn');
+    buttons.forEach((button, index) => {
+      if (index > 0 && index < buttons.length - 1) { // 跳过上一页和下一页按钮
+        const pageNum = index; // 页码按钮的索引
+        if (pageNum === activePage) {
+          button.style.background = '#3b82f6';
+          button.style.color = 'white';
+        } else {
+          button.style.background = 'white';
+          button.style.color = '#3b82f6';
+        }
+      }
+    });
+  }
+  
+  // 图书卡片点击事件
+  document.querySelectorAll('.library-profile-container .book').forEach(book => {
+    book.addEventListener('click', () => {
+      const bookId = book.dataset.bookId;
+      window.location.href = `/Books/BookDetail?id=${bookId}`;
+    });
+    
+    book.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') book.click();
+    });
+  });
+
+  // 页面加载完成后初始化分页
+  document.addEventListener('DOMContentLoaded', function() {
+    createSimplePagination();
+  });
+</script>
+</body>
+</html>

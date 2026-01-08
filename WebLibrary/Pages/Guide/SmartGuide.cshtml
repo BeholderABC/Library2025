@@ -1,0 +1,46 @@
+@page
+@model WebLibrary.Pages.Guide.SmartGuideModel
+@{
+    ViewData["Title"] = "智慧导览服务";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Guide">指南</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">智慧导览服务</li>
+                </ol>
+            </nav>
+            
+            <h2 class="mb-4">
+                <i class="bi bi-robot text-success"></i> 智慧导览服务
+            </h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="~/images/Smart_Navigation.png" alt="智慧导览服务" class="img-fluid" style="max-width: 100%; height: auto;" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+    
+    .breadcrumb {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 0.75rem 1rem;
+    }
+</style> 

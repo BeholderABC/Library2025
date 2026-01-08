@@ -1,0 +1,31 @@
+﻿@page
+@model WebLibrary.Pages.Borrow.BorrowBookModel
+@{
+    ViewData["Title"] = "借书";
+}
+<h5 class="text-primary mb-3">借阅图书</h5>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">扫描或输入ISBN</label>
+        <input class="form-control w-auto d-inline-block" placeholder="ISBN" asp-for="BookISBN">
+        <button type="submit" class="btn btn-primary ms-2">借书</button>
+    </div>
+</form>
