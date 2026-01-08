@@ -1,0 +1,401 @@
+﻿@* @page
+@model WebLibrary.Pages.Admin.BorrowManagementModel
+@{
+    ViewData["Title"] = "借阅管理";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h5 class="text-primary">借阅列表</h5>
+    <button class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#borrowModal"
+            onclick="openCreateModal()">
+        + 新增借阅
+    </button>
+    <a asp-page="./BorrowManagement" asp-route-handler="ExportOverdue" class="btn btn-primary">
+    导出逾期
+    </a>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>记录ID</th>
+            <th>用户ID</th>
+            <th>图书ID</th>
+            <th>副本ID</th>
+            <th>借出日期</th>
+            <th>应还日期</th>
+            <th>状态</th>
+            <th>续借次数</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Model.BorrowRecords)
+        {
+                <tr>
+                    <td>@b.RecordId</td>
+                    <td>@b.UserId</td>
+                    <td>@b.BookId</td>
+                    <td>@b.CopyId</td>
+                    <td>@b.BorrowDate.ToShortDateString()</td>
+                    <td>@b.DueDate.ToShortDateString()</td>
+                    <td>@b.Status</td>
+                    <td>@b.RenewTimes</td>
+                    <td>
+                        <form method="post" asp-page-handler="Delete"
+                              asp-route-id="@b.RecordId" class="d-inline"
+                              onsubmit="return confirm('确认删除该借阅记录？');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                        </form>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+<!-- ✅ 新增借阅 Modal -->
+<div class="modal fade" id="borrowModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="borrowModalLabel">新增借阅记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="borrowForm" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="UserId" class="form-label">用户 *</label>
+                            <select name="NewBorrow.UserId" class="form-select" required>
+                                <option value="">-- 选择用户 --</option>
+                                @foreach (var u in Model.UserOptions)
+                                {
+                                        <option value="@u.Value">@u.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="BookId" class="form-label">图书 *</label>
+                            <select name="NewBorrow.BookId" class="form-select" required>
+                                <option value="">-- 选择图书 --</option>
+                                @foreach (var b in Model.BookOptions)
+                                {
+                                        <option value="@b.Value">@b.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="CopyId" class="form-label">副本ID *</label>
+                            <input type="number" name="NewBorrow.CopyId" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="BorrowDate" class="form-label">借出日期</label>
+                            <input type="date" name="NewBorrow.BorrowDate" class="form-control"
+                                   value="@Model.NewBorrow.BorrowDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="DueDate" class="form-label">应还日期</label>
+                            <input type="date" name="NewBorrow.DueDate" class="form-control"
+                                   value="@Model.NewBorrow.DueDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Status" class="form-label">借阅状态 *</label>
+                            <select id="Status" name="Status" class="form-select" required>
+                                <option value="lending">lending</option>
+                                <option value="returned">returned</option>
+                                <option value="overdue">overdue</option>
+                                <option value="overdue_returned">overdue_returned</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="RenewTimes" class="form-label">续借次数 *</label>
+                            <input id="RenewTimes" name="RenewTimes" type="number" class="form-control" min="0" required />
+                        </div>
+                    </div>
+                    <!-- ✅ 放在这里，modal-body 开头，用户一眼就能看到错误 -->
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="text-end mt-4">
+                        <button type="submit" formaction="?handler=Create" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            function openCreateModal() {
+                document.getElementById('borrowForm').reset();
+                document.getElementById('borrowModalLabel').innerText = '新增借阅记录';
+            }
+        </script>
+}
+ *@
+
+
+                        @page
+@model WebLibrary.Pages.Admin.BorrowManagementModel
+@{
+    ViewData["Title"] = "借阅管理";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h5 class="text-primary">借阅列表</h5>
+    <div>
+        <button class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#borrowModal"
+                onclick="openCreateModal()">
+            + 新增借阅
+        </button>
+        <a asp-page="./BorrowManagement" asp-route-handler="ExportOverdue" class="btn btn-success ms-2">
+            导出逾期
+        </a>
+    </div>
+</div>
+
+<!-- 筛选器面板 -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false">
+                <i class="fas fa-filter"></i> 筛选条件
+            </button>
+        </h6>
+    </div>
+    <div class="collapse" id="filterPanel">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <!-- 时间筛选 -->
+                <div class="col-md-3">
+                    <label for="StartDate" class="form-label">开始日期</label>
+                    <input type="date" name="StartDate" class="form-control" 
+                           value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-3">
+                    <label for="EndDate" class="form-label">结束日期</label>
+                    <input type="date" name="EndDate" class="form-control" 
+                           value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+
+                <!-- Book ID 筛选 -->
+                <div class="col-md-3">
+                    <label for="BookId" class="form-label">图书ID</label>
+                    <input type="number" name="BookId" class="form-control" 
+                           placeholder="精确匹配" value="@Model.BookId" />
+                </div>
+
+                <!-- 状态筛选 -->
+                <div class="col-md-3">
+                    <label for="Status" class="form-label">借阅状态</label>
+                    <select name="Status" class="form-select">
+                        <option value="">-- 全部 --</option>
+                        <option value="lending" selected="@(Model.Status == "lending")">lending</option>
+                        <option value="returned" selected="@(Model.Status == "returned")">returned</option>
+                        <option value="overdue" selected="@(Model.Status == "overdue")">overdue</option>
+                        <option value="overdue_returned" selected="@(Model.Status == "overdue_returned")">overdue_returned</option>
+                    </select>
+                </div>
+
+                <!-- Book ID 范围筛选（可选） -->
+                <div class="col-md-3">
+                    <label for="BookIdMin" class="form-label">图书ID范围（最小）</label>
+                    <input type="number" name="BookIdMin" class="form-control" 
+                           placeholder="最小值" value="@Model.BookIdMin" />
+                </div>
+                <div class="col-md-3">
+                    <label for="BookIdMax" class="form-label">图书ID范围（最大）</label>
+                    <input type="number" name="BookIdMax" class="form-control" 
+                           placeholder="最大值" value="@Model.BookIdMax" />
+                </div>
+
+                <!-- 按钮组 -->
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> 应用筛选
+                    </button>
+                    <button type="submit" formaction="?handler=ClearFilters" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-times"></i> 清除筛选
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 结果统计 -->
+<div class="mb-2">
+    <small class="text-muted">
+        共找到 @Model.DisplayRecords.Count 条借阅记录
+        @if (Model.StartDate.HasValue || Model.EndDate.HasValue || Model.BookId.HasValue || Model.BookIdMin.HasValue || Model.BookIdMax.HasValue || !string.IsNullOrEmpty(Model.Status))
+        {
+                <span class="badge bg-info ms-2">已应用筛选</span>
+        }
+    </small>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>记录ID</th>
+            <th>用户</th>
+            <th>图书</th>
+            <th>副本ID</th>
+            <th>借出日期</th>
+            <th>应还日期</th>
+            <th>状态</th>
+            <th>续借次数</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.DisplayRecords.Any())
+        {
+            @foreach (var b in Model.DisplayRecords)
+            {
+                        <tr>
+                            <td>@b.RecordId</td>
+                            <td>
+                                <small class="text-muted">[ID: @b.UserId]</small><br>
+                        @b.UserName
+                            </td>
+                            <td>
+                                <small class="text-muted">[ID: @b.BookId]</small><br>
+                        @b.BookTitle
+                            </td>
+                            <td>@b.CopyId</td>
+                            <td>@b.BorrowDate.ToShortDateString()</td>
+                            <td>
+                        @b.DueDate.ToShortDateString()
+                        @if (b.IsOverdue)
+                        {
+                                        <i class="fas fa-exclamation-triangle text-danger ms-1" title="已逾期"></i>
+                        }
+                            </td>
+                            <td>
+                                <span class="badge @(b.Status switch {
+                            "lending" => "bg-primary",
+                            "returned" => "bg-success",
+                            "overdue" => "bg-danger",
+                            "overdue_returned" => "bg-warning",
+                            _ => "bg-secondary"
+                        })">
+                            @b.Status
+                                </span>
+                            </td>
+                            <td>@b.RenewTimes</td>
+                            <td>
+                                <form method="post" asp-page-handler="Delete"
+                                      asp-route-id="@b.RecordId" class="d-inline"
+                                      onsubmit="return confirm('确认删除该借阅记录？');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                                </form>
+                            </td>
+                        </tr>
+            }
+        }
+        else
+        {
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        没有找到符合条件的借阅记录
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+<!-- ✅ 新增借阅 Modal -->
+<div class="modal fade" id="borrowModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="borrowModalLabel">新增借阅记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="borrowForm" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="UserId" class="form-label">用户 *</label>
+                            <select name="NewBorrow.UserId" class="form-select" required>
+                                <option value="">-- 选择用户 --</option>
+                                @foreach (var u in Model.UserOptions)
+                                {
+                                        <option value="@u.Value">@u.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="BookId" class="form-label">图书 *</label>
+                            <select name="NewBorrow.BookId" class="form-select" required>
+                                <option value="">-- 选择图书 --</option>
+                                @foreach (var b in Model.BookOptions)
+                                {
+                                        <option value="@b.Value">@b.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="CopyId" class="form-label">副本ID *</label>
+                            <input type="number" name="NewBorrow.CopyId" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="BorrowDate" class="form-label">借出日期</label>
+                            <input type="date" name="NewBorrow.BorrowDate" class="form-control"
+                                   value="@Model.NewBorrow.BorrowDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="DueDate" class="form-label">应还日期</label>
+                            <input type="date" name="NewBorrow.DueDate" class="form-control"
+                                   value="@Model.NewBorrow.DueDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Status" class="form-label">借阅状态 *</label>
+                            <select id="Status" name="Status" class="form-select" required>
+                                <option value="lending">lending</option>
+                                <option value="returned">returned</option>
+                                <option value="overdue">overdue</option>
+                                <option value="overdue_returned">overdue_returned</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="RenewTimes" class="form-label">续借次数 *</label>
+                            <input id="RenewTimes" name="RenewTimes" type="number" class="form-control" min="0" required />
+                        </div>
+                    </div>
+                    <!-- ✅ 放在这里，modal-body 开头，用户一眼就能看到错误 -->
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="text-end mt-4">
+                        <button type="submit" formaction="?handler=Create" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            function openCreateModal() {
+                document.getElementById('borrowForm').reset();
+                document.getElementById('borrowModalLabel').innerText = '新增借阅记录';
+            }
+
+            // 筛选面板状态保持
+            document.addEventListener('DOMContentLoaded', function () {
+                const hasFilters = @(Json.Serialize(Model.StartDate.HasValue || Model.EndDate.HasValue || Model.BookId.HasValue || Model.BookIdMin.HasValue || Model.BookIdMax.HasValue || !string.IsNullOrEmpty(Model.Status)));
+                if (hasFilters) {
+                    const filterPanel = document.getElementById('filterPanel');
+                    if (filterPanel) {
+                        filterPanel.classList.add('show');
+                    }
+                }
+            });
+        </script>
+}

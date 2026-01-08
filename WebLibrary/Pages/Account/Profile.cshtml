@@ -1,0 +1,135 @@
+﻿@page
+@model WebLibrary.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "个人信息";
+}
+
+<!-- 使用与主页相同的背景样式 -->
+<section class="section-full home-hero">
+    <div class="section-inner">
+        <!-- 添加标题区域，与主页标题风格一致 -->
+        <div class="text-center text-light hero-top-section">
+            <h1 class="display-4 mb-4">个人信息</h1>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <!-- 使用与主页相同的白色长方形区域样式 -->
+                <div class="white-rectangle" style="height: auto; padding: 3rem;">
+                    <div class="rectangle-content">
+                        <div class="profile-card">
+                            <div class="profile-card-body">
+                                <!-- 使用单列布局 -->
+                                <div class="profile-info-container">
+                                    <div class="profile-row">
+                                        <div class="profile-label">用户名</div>
+                                        <div class="profile-value">@Model.UserInfo.UserName</div>
+                                    </div>
+
+                                    <div class="profile-row">
+                                        <div class="profile-label">邮箱</div>
+                                        <div class="profile-value">@Model.UserInfo.Email</div>
+                                    </div>
+
+                                    <div class="profile-row">
+                                        <div class="profile-label">手机号</div>
+                                        <div class="profile-value">@Model.UserInfo.Phone</div>
+                                    </div>
+
+                                    <div class="profile-row">
+                                        <div class="profile-label">用户类型</div>
+                                        <div class="profile-value">@Model.UserInfo.UserType</div>
+                                    </div>
+
+                                    <div class="profile-row">
+                                        <div class="profile-label">账户状态</div>
+                                        <div class="profile-value">@Model.UserInfo.Status</div>
+                                    </div>
+
+                                    <div class="profile-row">
+                                        <div class="profile-label">信誉分</div>
+                                        <div class="profile-value">
+                                            <span class="badge @(Model.UserInfo.CreditScore < 60 ? "bg-danger" : "bg-success")">
+                                                @Model.UserInfo.CreditScore
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-row">
+                                        <div class="profile-label">借阅权限</div>
+                                        <div class="profile-value">
+                                            <span class="badge @(Model.UserInfo.IsLimited ? "bg-warning text-dark" : "bg-info")">
+                                                @(Model.UserInfo.IsLimited ? "已限制" : "正常")
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 编辑按钮居中显示 -->
+                                <div class="text-center mt-5">
+                                    <a class="btn btn-primary btn-lg px-5 py-3" asp-page="/Account/EditProfile">
+                                        编辑信息
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* 卡片内部布局优化 */
+    .profile-card-body {
+        padding: 2rem 3rem;
+    }
+
+    .profile-info-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .profile-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem; /* 增加行间距 */
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .profile-label {
+        width: 180px; /* 增加标签宽度 */
+        text-align: left;
+        color: #0b3a75;
+        font-weight: 600;
+        font-size: 1.4rem; /* 增大字体 */
+        margin-right: 2rem;
+    }
+
+    .profile-value {
+        flex: 1;
+        text-align: left;
+        color: #333;
+        font-size: 1.4rem; /* 增大字体 */
+        display: flex;
+        align-items: center;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.6rem 1.2rem; /* 增大内边距 */
+        font-size: 1.3rem; /* 增大徽章字体 */
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    /* 调整按钮大小 */
+    .btn-lg {
+        padding: 1rem 3rem;
+        font-size: 1.4rem;
+        border-radius: 8px;
+    }
+
+</style>

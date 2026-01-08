@@ -1,0 +1,50 @@
+@page
+@model WebLibrary.Pages.Admin.DisplayTableModel
+@{
+    ViewData["Title"] = "显示表格数据";
+}
+
+<h2>表格数据展示</h2>
+<div class="mb-3">
+    <a class="btn btn-primary" href="@Url.Page("/Admin/BorrowManagement")">
+        管理借阅记录
+    </a>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            @foreach (var column in Model.ColumnNames)
+            {
+                    <th style="white-space: nowrap;">
+                    @{
+                        // 先准备好箭头文本（避免 Razor 标签嵌套错位）
+                        var arrow = "";
+                        if (string.Equals(column, Model.SortColumn, StringComparison.OrdinalIgnoreCase))
+                        {
+                            arrow = Model.SortOrder == "ASC" ? "↑" : "↓";
+                        }
+
+                        // 计算下一次点击后的排序方向
+                        var nextSortOrder = (string.Equals(column, Model.SortColumn, StringComparison.OrdinalIgnoreCase) && Model.SortOrder == "ASC") ? "DESC" : "ASC";
+                    }
+
+                        <a href="@Url.Page("/Admin/BorrowStats", new { sortColumn = column, sortOrder = nextSortOrder })">
+                        @column @arrow
+                        </a>
+                    </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model.TableData)
+        {
+                <tr>
+                @foreach (var cell in row)
+                {
+                            <td>@cell</td>
+                }
+                </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,140 @@
+﻿@page
+@model WebLibrary.Pages.Admin.BorrowRuleManagementModel
+@{
+    ViewData["Title"] = "借阅规则设置";
+}
+
+<section class="section-full">
+    <div class="section-inner">
+        <div class="text-center mb-5">
+            <h1 class="display-5 text-primary">借阅规则设置</h1>
+            <p class="text-muted">设置不同用户角色的借阅规则与信用分规则</p>
+        </div>
+
+        <form method="post">
+            @foreach (var role in Model.Roles)
+            {
+                <div class="mb-4 white-rectangle">
+                    <div class="rectangle-content">
+                        <h4 class="text-center mb-3">@role 借阅规则</h4>
+                        <div class="row mb-2">
+                            <div class="col-md-3">
+                                <label>最短可借天数</label>
+                                <input type="number" class="form-control" name="@role-MinDays" value="@Model.GetMinDays(role)" min="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label>最长可借天数</label>
+                                <input type="number" class="form-control" name="@role-MaxDays" value="@Model.GetMaxDays(role)" min="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label>最多可借本数</label>
+                                <input type="number" class="form-control" name="@role-MaxBooks" value="@Model.GetMaxBooks(role)" min="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label>基础可借天数</label>
+                                <input type="number" class="form-control" name="@role-OriginDays" value="@Model.GetOriginDays(role)" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="mb-4 white-rectangle">
+                <div class="rectangle-content">
+                    <h4 class="text-center mb-3">信用分规则</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>加分门槛（≥）</label>
+                            <input type="number" class="form-control" name="CreditBonusThreshold" value="@Model.CreditBonusThreshold">
+                        </div>
+                        <div class="col-md-3">
+                            <label>加借天数</label>
+                            <input type="number" class="form-control" name="CreditBonusDays" value="@Model.CreditBonusDays">
+                        </div>
+                        <div class="col-md-3">
+                            <label>加借本数</label>
+                            <input type="number" class="form-control" name="CreditBonusBooks" value="@Model.CreditBonusBooks">
+                        </div>
+                        <div class="col-md-3">
+                            <label>降分门槛（<）</label>
+                            <input type="number" class="form-control" name="CreditPenaltyThreshold" value="@Model.CreditPenaltyThreshold">
+                        </div>
+                        <div class="col-md-3">
+                            <label>减借本数</label>
+                            <input type="number" class="form-control" name="CreditPenaltyBooks" value="@Model.CreditPenaltyBooks">
+                        </div>
+                        <div class="col-md-3">
+                            <label>减借天数</label>
+                            <input type="number" class="form-control" name="CreditPenaltyDays" value="@Model.CreditPenaltyDays">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-50 py-3 mb-3">保存规则</button>
+            </div>
+
+            <div class="text-center">
+                <a href="/Admin/ViewBorrowRules" class="btn btn-outline-secondary w-50 py-3">查看借阅规则</a>
+            </div>
+        </form>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success mt-3 text-center">@TempData["Message"]</div>
+        }
+    </div>
+</section>
+
+<style>
+    /* 设置全局背景图 */
+    body {
+        background: url('/images/bg-pattern.png') no-repeat center top fixed;
+        background-size: cover; /* 图片自适应填满 */
+    }
+
+    /* 复用首页的“白色长方形”视觉风格 */
+    .white-rectangle {
+        background: #fff;
+        border-radius: 0.6rem;
+        box-shadow: 0 6px 18px rgba(23, 43, 77, 0.06);
+        padding: 1rem;
+        height: 100%;
+    }
+
+    .rectangle-content {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .btn-grid .btn {
+        border-radius: 0.5rem;
+        padding: 0.9rem 1rem;
+        text-align: left;
+    }
+
+        .btn-grid .btn + .btn {
+            margin-top: 0.5rem;
+        }
+
+
+    
+
+
+    /* 信用分规则部分按钮的图标 */
+    .credit-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+    }
+
+    .text-center h4 {
+        font-weight: 600;
+    }
+
+    .alert-success {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+</style>
+

@@ -1,0 +1,47 @@
+﻿@page
+@model WebLibrary.Pages.Books.IndexModel
+@{
+    ViewData["Title"] = "图书中心";
+}
+
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">搜索/筛选</div>
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-5"><input class="form-control" placeholder="书名 / ISBN / 作者"></div>
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option>全部分类</option>
+                    <option>计算机</option>
+                    <option>文学</option>
+                    <option>历史</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select">
+                    <option>全部状态</option>
+                    <option>可借</option>
+                    <option>已借出</option>
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">查询</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-2 row-cols-md-4 g-3">
+    @for (int i = 1; i <= 8; i++)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="https://via.placeholder.com/180x240/e3f2fd/0056b3?text=BOOK" class="card-img-top">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">深入理解计算机系统</h6>
+                    <small class="text-muted">Randal E. Bryant</small>
+                    <span class="badge bg-success mt-1">可借 5/7</span>
+                </div>
+                <a asp-page="/Catalog/BookDetail" asp-route-id="@i" class="stretched-link"></a>
+            </div>
+        </div>
+    }
+</div>

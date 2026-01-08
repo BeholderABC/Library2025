@@ -1,0 +1,97 @@
+﻿@page
+@model WebLibrary.Pages.Admin.BookCopiesModel
+@{
+    ViewData["Title"] = "图书副本列表";
+}
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h5 class="text-primary">图书副本列表 - @Model.Book.Title</h5>
+    <div>
+        <a href="/Admin/BookManagement" class="btn btn-secondary btn-sm">返回图书管理</a>
+    </div>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>副本ID</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var copy in Model.BookCopies)
+        {
+            <tr>
+                <td>@copy.CopyId</td>
+                <td>
+                    @switch (copy.Status.ToUpper())
+                    {
+                        case "AVAILABLE":
+                            <span class="badge bg-success">可借</span>
+                            break;
+                        case "BORROWED":
+                            <span class="badge bg-secondary">已借出</span>
+                            break;
+                        case "REPAIRING":
+                            <span class="badge bg-warning">维修中</span>
+                            break;
+                        default:
+                            <span class="badge bg-light text-dark">未知</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    @if (copy.Status.ToUpper() == "AVAILABLE")
+                    {
+                        <form method="post" asp-page-handler="SetRepairing"
+                              asp-route-copyId="@copy.CopyId" class="d-inline"
+                              onsubmit="return confirm('确认将该副本设为维修中？');">
+                            <input type="hidden" name="bookId" value="@Model.BookId" />
+                            <button type="submit" class="btn btn-sm btn-outline-warning">设为维修中</button>
+                        </form>
+                    }
+                    else if (copy.Status.ToUpper() == "REPAIRING")
+                    {
+                        <form method="post" asp-page-handler="SetAvailable"
+                              asp-route-copyId="@copy.CopyId" class="d-inline"
+                              onsubmit="return confirm('确认维修完成，恢复可借？');">
+                            <input type="hidden" name="bookId" value="@Model.BookId" />
+                            <button type="submit" class="btn btn-sm btn-outline-success">恢复可借</button>
+                        </form>
+                    }
+
+                    <form method="post" asp-page-handler="Delete"
+                          asp-route-copyId="@copy.CopyId" class="d-inline"
+                          onsubmit="return confirm('确认删除？');">
+                        <input type="hidden" name="bookId" value="@Model.BookId" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        const errMsg = '@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ErrorMessage ?? ""))';
+        const errorFrom = '@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ErrorModal ?? ""))';
+
+        if (errMsg && errMsg !== '""') {
+            // 只识别需要弹窗的场合
+            const modalId = errorFrom === '"create"' ? 'createCopyModal' :
+                            errorFrom === '"edit"'   ? 'editCopyModal'   : '';
+            if (!modalId) return;        // "delete" 或其他 -> 不弹窗
+            new bootstrap.Modal(document.getElementById(modalId)).show();
+        }
+    </script>
+}

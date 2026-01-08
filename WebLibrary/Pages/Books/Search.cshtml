@@ -1,0 +1,212 @@
+﻿@page
+@model WebLibrary.Pages.Books.SearchModel
+@{
+    ViewData["Title"] = "图书检索";
+}
+
+<h1>图书检索</h1>
+
+<!-- 基本搜索 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" asp-page-handler="BasicSearch">
+            <div class="row">
+                <div class="col-md-10">
+                    <input type="text" class="form-control" asp-for="SearchKeyword" placeholder="请输入书名、作者或ISBN进行搜索..." />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> 搜索
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 高级搜索 -->
+<div class="card mb-4">
+    <div class="card-header">
+        <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#advancedSearch">
+            <i class="bi bi-chevron-down"></i> 高级搜索
+        </button>
+    </div>
+    <div class="collapse" id="advancedSearch">
+        <div class="card-body">
+            <form method="post" asp-page-handler="AdvancedSearch">
+                <div class="row">
+                    <div class="col-md-4"><label asp-for="SearchTitle" class="form-label">书名</label><input asp-for="SearchTitle" class="form-control" /></div>
+                    <div class="col-md-4"><label asp-for="SearchAuthor" class="form-label">作者</label><input asp-for="SearchAuthor" class="form-control" /></div>
+                    <div class="col-md-4"><label asp-for="SearchISBN" class="form-label">ISBN</label><input asp-for="SearchISBN" class="form-control" /></div>
+                    <div class="col-md-4"><label asp-for="SearchPublisher" class="form-label">出版社</label><input asp-for="SearchPublisher" class="form-control" /></div>
+                    <div class="col-md-4"><label asp-for="SearchPublicationDate" class="form-label">出版日期</label><input asp-for="SearchPublicationDate" type="date" class="form-control" /></div>
+                    <div class="col-md-4"><label asp-for="SearchCategory" class="form-label">分类</label><select asp-for="SearchCategory" class="form-select">
+                        <option value="">请选择</option>
+                        @foreach (var category in Model.BookCategories)
+                        {
+                            <option value="@category.Name">@category.Name</option>
+                        }
+                    </select></div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-check">
+                            <input asp-for="OnlyShowAvailable" class="form-check-input" type="checkbox" />
+                            <label asp-for="OnlyShowAvailable" class="form-check-label">
+                                只看可借（只显示还有可用副本的图书）
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-success"><i class="bi bi-search"></i> 高级搜索</button>
+                    <button type="reset" class="btn btn-secondary ms-2"><i class="bi bi-x-circle"></i> 重置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 结果 -->
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (Model.SearchResults?.Any() == true)
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">搜索结果</h5>
+            <span class="badge bg-primary">共 @Model.SearchResults.Count 本</span>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var book in Model.SearchResults)
+                {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">@book.Title</h5>
+                                <div class="card-text">
+                                    <div><strong>作者:</strong> @book.Author</div>
+                                    @if (!string.IsNullOrEmpty(book.ISBN))
+                                    {
+                                        <div><strong>ISBN:</strong> @book.ISBN</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(book.CategoryName))
+                                    {
+                                        <div><strong>分类:</strong> @book.CategoryName</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(book.Publisher))
+                                    {
+                                        <div><strong>出版社:</strong> @book.Publisher</div>
+                                    }
+                                    @if (book.PublicationDate.HasValue)
+                                    {
+                                        <div><strong>出版日期:</strong> @book.PublicationDate.Value.ToString("yyyy-MM-dd")</div>
+                                    }
+                                    @if (book.BookRating.HasValue)
+                                    {
+                                        <div>
+                                            <strong>评分:</strong>
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi bi-star@(i <= book.BookRating.Value ? "-fill" : "") text-warning"></i>
+                                            }
+                                            @book.BookRating.Value.ToString("F1")
+                                        </div>
+                                    }
+                                </div>
+                                @if (book.AvailableCopies > 0)
+                                {
+                                    <span class="badge bg-success">可借 @book.AvailableCopies/@book.TotalCopies</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">已借完 0/@book.TotalCopies</span>
+                                }
+                            </div>
+                            <div class="card-footer">
+                                <a href="/Books/BookDetail?id=@book.BookId" class="btn btn-outline-primary btn-sm">查看详情</a>
+                                @if (book.AvailableCopies > 0)
+                                {
+                                    <form method="post" asp-page-handler="Borrow" asp-route-bookId="@book.BookId" class="d-inline">
+                                        <button type="submit" class="btn btn-primary btn-sm ms-2">立即借阅</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-warning btn-sm ms-2 reservation-btn"
+                                            data-book-id="@book.BookId" data-book-title="@book.Title">
+                                        预约
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+else if (ViewContext.HttpContext.Request.Method == "POST")
+{
+    <div class="alert alert-info"><i class="bi bi-info-circle"></i> 没有找到符合条件的图书。</div>
+}
+
+<!-- 预约 Modal -->
+<div class="modal fade" id="reservationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">预约确认</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要预约该图书吗？</p>
+                <div id="reservationBookInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirmReservationBtn">确认预约</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="reservationForm" method="post" asp-page-handler="Reserve" style="display:none;">
+    <input type="hidden" name="bookId" id="reservationBookId" />
+</form>
+
+@section Scripts {
+    <script>
+        // 重置高级搜索
+        document.querySelector('button[type="reset"]').addEventListener('click', () => {
+            ['SearchTitle', 'SearchAuthor', 'SearchCategory'].forEach(id => document.getElementById(id).value = '');
+        });
+
+        // 预约按钮
+        document.querySelectorAll('.reservation-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.bookId;
+                const title = btn.dataset.bookTitle;
+                document.getElementById('reservationBookId').value = id;
+                document.getElementById('reservationBookInfo').textContent = `图书：${title}`;
+                new bootstrap.Modal(document.getElementById('reservationModal')).show();
+            });
+        });
+
+        document.getElementById('confirmReservationBtn').addEventListener('click', () => {
+            document.getElementById('reservationForm').submit();
+        });
+    </script>
+}

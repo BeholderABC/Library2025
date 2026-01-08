@@ -1,0 +1,58 @@
+﻿@page
+@model WebLibrary.Pages.Admin.ViewBorrowRulesModel
+@{
+    ViewData["Title"] = "当前借阅规则";
+}
+
+<h4 class="text-primary mb-3">当前借阅规则一览</h4>
+
+<table class="table table-bordered mb-4">
+    <thead>
+        <tr>
+            <th>角色</th>
+            <th>最短天数</th>
+            <th>最长天数</th>
+            <th>最大本数</th>
+            <th>基础天数</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rule in Model.RoleRules)
+        {
+            <tr>
+                <td>@rule.RoleName</td>
+                <td>@rule.MinDays</td>
+                <td>@rule.MaxDays</td>
+                <td>@rule.MaxBooks</td>
+                <td>@rule.OriginDays</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="text-primary mb-3">信用分规则</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>加分门槛 (≥)</th>
+            <th>加借天数</th>
+            <th>加借本数</th>
+            <th>降分门槛 (<)</th>
+            <th>减借本数</th>
+            <th>减借天数</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.CreditRule.BonusThreshold</td>
+            <td>@Model.CreditRule.BonusDays</td>
+            <td>@Model.CreditRule.BonusBooks</td>
+            <td>@Model.CreditRule.PenaltyThreshold</td>
+            <td>@Model.CreditRule.PenaltyBooks</td>
+            <td>@Model.CreditRule.PenaltyDays</td>
+        </tr>
+    </tbody>
+</table>
+
+<a class="btn btn-secondary mt-3" href="/Admin/DueTimeManagement">返回编辑页面</a>
+

@@ -1,0 +1,22 @@
+﻿@page
+@model WebLibrary.Pages.Admin.AddCategoryModel
+@{
+    ViewData["Title"] = "新增图书分类";
+}
+
+<h4 class="mb-3">新增图书分类</h4>
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="CategoryName" class="form-label">分类名称 *</label>
+        <input asp-for="CategoryName" class="form-control" required />
+        <span asp-validation-for="CategoryName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">保存</button>
+    <a asp-page="/Admin/BookManagement" class="btn btn-secondary ms-2">返回</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

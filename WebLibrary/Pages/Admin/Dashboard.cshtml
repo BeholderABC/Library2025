@@ -1,0 +1,166 @@
+﻿@page
+@model WebLibrary.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "管理员控制台";
+}
+
+<section class="section-full">
+    <div class="section-inner">
+        <div class="text-center mb-4">
+            <h1 class="display-5 text-primary">管理员控制台</h1>
+            <p class="text-muted">管理用户、图书、活动、罚款与统计</p>
+        </div>
+
+        <!-- 四个统计卡片（白色长方形里的卡片布局） -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="white-rectangle stat-card bg-primary text-white">
+                    <div class="rectangle-content text-center">
+                        <div class="stat-value">@Model.UserCount.ToString("N0")</div>
+                        <div class="stat-label">用户数</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="white-rectangle stat-card bg-info text-white">
+                    <div class="rectangle-content text-center">
+                        <div class="stat-value">@Model.BookCount.ToString("N0")</div>
+                        <div class="stat-label">藏书量</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="white-rectangle stat-card bg-warning text-dark">
+                    <div class="rectangle-content text-center">
+                        <div class="stat-value">@Model.LendingCount</div>
+                        <div class="stat-label">在借数</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="white-rectangle stat-card bg-danger text-white">
+                    <div class="rectangle-content text-center">
+                        <div class="stat-value">@Model.OverdueCount</div>
+                        <div class="stat-label">逾期数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能按钮区（仿首页白色长方形风格） -->
+        <div class="row white-rectangle-container g-4">
+            <div class="col-md-6">
+                <div class="white-rectangle">
+                    <div class="rectangle-content">
+                        <h4 class="mb-3">用户与图书管理</h4>
+                        <div class="btn-grid">
+                            <a asp-page="/Admin/UserManagement" class="btn btn-outline-primary btn-lg w-100 mb-2">用户管理</a>
+                            <a asp-page="/Admin/BookManagement" class="btn btn-outline-primary btn-lg w-100 mb-2">图书管理</a>
+                            <a asp-page="/Admin/CategoryManagement" class="btn btn-outline-primary btn-lg w-100 mb-2">分类管理</a>
+                            <a asp-page="/Admin/NotificationManagement" class="btn btn-outline-primary btn-lg w-100">发送通知</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="white-rectangle">
+                    <div class="rectangle-content">
+                        <h4 class="mb-3">借阅、罚款与规则</h4>
+                        <div class="btn-grid">
+                            <a asp-page="/Admin/UserPayFine" class="btn btn-outline-primary btn-lg w-100 mb-2">用户罚款缴纳</a>
+                            <a asp-page="/Admin/FineRules" class="btn btn-outline-primary btn-lg w-100 mb-2">罚款规则</a>
+                            <a asp-page="/Admin/DueTimeManagement" class="btn btn-outline-primary btn-lg w-100 mb-2">借阅时间</a>
+                            <a asp-page="/Admin/ViolationCreditRuleManagement" class="btn btn-outline-primary btn-lg w-100">信用分规则</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="white-rectangle">
+                    <div class="rectangle-content">
+                        <h4 class="mb-3">统计与报表</h4>
+                        <div class="btn-grid">
+                            <a asp-page="/Admin/StatsReport" class="btn btn-outline-primary btn-lg w-100 mb-2">数据报表</a>
+                            <a asp-page="/Admin/BorrowStats" class="btn btn-outline-primary btn-lg w-100">借阅统计</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="white-rectangle">
+                    <div class="rectangle-content">
+                        <h4 class="mb-3">活动与讲座管理</h4>
+                        <div class="btn-grid">
+                            <a asp-page="/Lecture/LectureManagement" class="btn btn-outline-primary btn-lg w-100">活动管理</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 说明 / 快速入口 -->
+        <div class="mt-4">
+            <div class="white-rectangle">
+                <div class="rectangle-content d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5>快速说明</h5>
+                        <p class="mb-0 text-muted">通过上方按钮可以快速进入各项管理模块。建议定期查看“数据报表”与“逾期数”以便及时处理逾期与罚款。</p>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* 设置全局背景 */
+    body {
+        background: url('/images/command.png') no-repeat center center fixed;
+        background-size: cover; /* 背景图片自适应铺满 */
+    }
+
+    /* 保证控制台白色卡片不受影响 */
+    .white-rectangle {
+        background: #fff;
+        border-radius: 0.6rem;
+        box-shadow: 0 6px 18px rgba(23, 43, 77, 0.06);
+        padding: 1rem;
+        height: 100%;
+    }
+
+    /* 其他样式保持不变 */
+    .stat-card {
+        padding: 1.2rem 0.5rem;
+        border-radius: 0.6rem;
+        box-shadow: 0 4px 12px rgba(23,43,77,0.06);
+    }
+
+    .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+
+    .stat-label {
+        font-size: 0.95rem;
+        opacity: 0.95;
+    }
+
+    .btn-grid .btn {
+        border-radius: 0.5rem;
+        padding: 0.9rem 1rem;
+        text-align: left;
+    }
+
+        .btn-grid .btn + .btn {
+            margin-top: 0.5rem;
+        }
+
+    
+</style>

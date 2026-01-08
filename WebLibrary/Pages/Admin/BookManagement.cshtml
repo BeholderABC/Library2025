@@ -1,0 +1,353 @@
+﻿@page
+@model WebLibrary.Pages.Admin.BookManagementModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "图书管理";
+}
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<h2 class="mb-4">图书管理</h2>
+
+<!-- ===== 搜索/筛选 ===== -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input asp-for="SearchTerm" class="form-control" placeholder="搜索书名、作者或ISBN..." />
+            </div>
+            <div class="col-md-3">
+                <select asp-for="CategoryFilter" class="form-select">
+                    <option value="">所有分类</option>
+                    @foreach (var c in Model.CategoryOptions)
+                    {
+                        <option value="@c.Value">@c.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select asp-for="StatusFilter" class="form-select">
+                    <option value="">所有状态</option>
+                    <option value="available">可借</option>
+                    <option value="unavailable">不可借</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">筛选</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== 图书列表 ===== -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">图书列表</span>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createBookModal">
+            + 新增图书
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Book&nbsp;ID</th>
+                        <th>书名</th>
+                        <th>分类</th>
+                        <th>ISBN</th>
+                        <th>可借/总</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Model.Books)
+                    {
+                        <tr>
+                            <td>@b.BookId</td>
+                            <td>
+                                <a href="/Admin/BookCopies?bookId=@b.BookId" class="text-decoration-none">@b.Title</a>
+                            </td>
+                            <td>@b.CategoryName</td>
+                            <td>@b.ISBN</td>
+                            <td>@b.AvailableCopies/@b.TotalCopies</td>
+                            <td>
+                                <span class="badge bg-@(b.AvailableCopies > 0 ? "success" : "secondary")">
+                                    @(b.AvailableCopies > 0 ? "可借" : "不可借")
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary js-edit"
+                                        data-id="@b.BookId"
+                                        data-title="@b.Title"
+                                        data-author="@b.Author"
+                                        data-isbn="@b.ISBN"
+                                        data-publisher="@(b.Publisher ?? "")"
+                                        data-pubdate="@(b.PublicationDate?.ToString("yyyy-MM-dd") ?? "")"
+                                        data-categoryid="@b.CategoryId"
+                                        data-totalcopies="@b.TotalCopies"
+                                        data-description="@(b.Description ?? "")"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editBookModal">
+                                    编辑
+                                </button>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@b.BookId"
+                                      class="d-inline ms-1"
+                                      onsubmit="return confirm('确认删除？');">
+                                    <input type="hidden" asp-for="SearchTerm" />
+                                    <input type="hidden" asp-for="StatusFilter" />
+                                    <input type="hidden" asp-for="CategoryFilter" />
+                                    <input type="hidden" asp-for="CurrentPage" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @{
+                        const int DesiredRows = 9;
+                        var blank = DesiredRows - Model.Books.Count;
+                    }
+                    @for (int i = 0; i < blank; i++)
+                    {
+                        <tr><td colspan="7">&nbsp;</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== 分页 ===== -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-page="/Admin/BookManagement"
+                       asp-route-CurrentPage="@(Model.CurrentPage - 1)"
+                       asp-route-SearchTerm="@Model.SearchTerm"
+                       asp-route-CategoryFilter="@Model.CategoryFilter"
+                       asp-route-StatusFilter="@Model.StatusFilter">上一页</a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                           asp-page="/Admin/BookManagement"
+                           asp-route-CurrentPage="@i"
+                           asp-route-SearchTerm="@Model.SearchTerm"
+                           asp-route-CategoryFilter="@Model.CategoryFilter"
+                           asp-route-StatusFilter="@Model.StatusFilter">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-page="/Admin/BookManagement"
+                       asp-route-CurrentPage="@(Model.CurrentPage + 1)"
+                       asp-route-SearchTerm="@Model.SearchTerm"
+                       asp-route-CategoryFilter="@Model.CategoryFilter"
+                       asp-route-StatusFilter="@Model.StatusFilter">下一页</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- ✅ 新增图书 Modal -->
+<div class="modal fade" id="createBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">新增图书</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="createErrorBox" class="alert alert-danger d-none"></div>
+                <form asp-page-handler="Create" method="post" class="row g-3">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="SearchTerm" />
+                    <input type="hidden" asp-for="StatusFilter" />
+                    <input type="hidden" asp-for="CategoryFilter" />
+                    <input type="hidden" asp-for="CurrentPage" />
+
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.Title" class="form-label"></label>
+                        <input asp-for="NewBook.Title" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.Author" class="form-label"></label>
+                        <input asp-for="NewBook.Author" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.ISBN" class="form-label"></label>
+                        <input asp-for="NewBook.ISBN" class="form-control"
+                               pattern="^(978|979)\d{10}$"
+                               title="ISBN 须为 13 位数字，且以 978 或 979 开头"
+                               required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.Publisher" class="form-label"></label>
+                        <input asp-for="NewBook.Publisher" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NewBook.PublicationDate" class="form-label"></label>
+                        <input asp-for="NewBook.PublicationDate" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NewBook.CategoryId" class="form-label"></label>
+                        <select asp-for="NewBook.CategoryId" asp-items="Model.CategoryOptions" class="form-select" required">
+                            <option value="">-- 请选择分类 --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NewBook.TotalCopies" class="form-label"></label>
+                        <input asp-for="NewBook.TotalCopies" type="number" min="0" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="NewBook.Description" class="form-label"></label>
+                        <textarea asp-for="NewBook.Description" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary"
+                                onclick="this.disabled=true;this.form.submit();">
+                            保存
+                        </button>
+                        <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ 编辑图书 Modal -->
+<div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">编辑图书</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="editErrorBox" class="alert alert-danger d-none"></div>
+                <form asp-page-handler="Edit" method="post" class="row g-3">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="SearchTerm" />
+                    <input type="hidden" asp-for="StatusFilter" />
+                    <input type="hidden" asp-for="CategoryFilter" />
+                    <input type="hidden" asp-for="CurrentPage" />
+                    <input asp-for="NewBook.BookId" type="hidden" />
+
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.Title" class="form-label"></label>
+                        <input asp-for="NewBook.Title" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.Author" class="form-label"></label>
+                        <input asp-for="NewBook.Author" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.ISBN" class="form-label"></label>
+                        <input asp-for="NewBook.ISBN" class="form-control"
+                               pattern="^(978|979)\d{10}$"
+                               title="ISBN 须为 13 位数字，且以 978 或 979 开头"
+                               required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NewBook.Publisher" class="form-label"></label>
+                        <input asp-for="NewBook.Publisher" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NewBook.PublicationDate" class="form-label"></label>
+                        <input asp-for="NewBook.PublicationDate" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NewBook.CategoryId" class="form-label"></label>
+                        <select asp-for="NewBook.CategoryId" asp-items="Model.CategoryOptions" class="form-select" required">
+                            <option value="">-- 请选择分类 --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NewBook.TotalCopies" class="form-label"></label>
+                        <input asp-for="NewBook.TotalCopies" type="number" min="0" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="NewBook.Description" class="form-label"></label>
+                        <textarea asp-for="NewBook.Description" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary"
+                                onclick="this.disabled=true;this.form.submit();">
+                            保存
+                        </button>
+                        <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 编辑按钮填充
+        document.addEventListener('click', function (e) {
+            if (!e.target.classList.contains('js-edit')) return;
+            const d = e.target.dataset;
+            const m = document.getElementById('editBookModal');
+
+            m.querySelector('[name="NewBook.BookId"]').value = d.id;
+            m.querySelector('[name="NewBook.Title"]').value = d.title ?? '';
+            m.querySelector('[name="NewBook.Author"]').value = d.author ?? '';
+            m.querySelector('[name="NewBook.ISBN"]').value = d.isbn ?? '';
+            m.querySelector('[name="NewBook.Publisher"]').value = d.publisher ?? '';
+            m.querySelector('[name="NewBook.CategoryId"]').value = d.categoryid ?? '';
+            m.querySelector('[name="NewBook.TotalCopies"]').value = d.totalcopies ?? '';
+            m.querySelector('[name="NewBook.Description"]').value = d.description ?? '';
+
+            if (d.pubdate) {
+                const date = new Date(d.pubdate);
+                const formatted = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+                m.querySelector('[name="NewBook.PublicationDate"]').value = formatted;
+            } else {
+                m.querySelector('[name="NewBook.PublicationDate"]').value = '';
+            }
+
+            document.getElementById('editErrorBox').classList.add('d-none');
+        });
+                
+
+        // 错误回显 + 自动弹窗
+        const errMsg = '@Html.Raw(JsonSerializer.Serialize(Model.ErrorMessage ?? ""))';
+        const errorFrom = '@Html.Raw(JsonSerializer.Serialize(Model.ErrorModal ?? ""))';
+
+        if (errMsg && errMsg !== '""') {
+            const modalId = errorFrom === '"create"' ? 'createBookModal' : 'editBookModal';
+            const boxId = errorFrom === '"create"' ? 'createErrorBox' : 'editErrorBox';
+            const box = document.getElementById(boxId);
+            if (box) {
+                box.textContent = errMsg.replace(/"/g, '');
+                box.classList.remove('d-none');
+            }
+            new bootstrap.Modal(document.getElementById(modalId)).show();
+        }
+
+        // Modal 关闭时清空表单与错误
+        document.querySelectorAll('.modal').forEach(modalEl => {
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                const form = modalEl.querySelector('form');
+                if (form) form.reset();
+                const errorBox = modalEl.querySelector('.alert-danger');
+                if (errorBox) errorBox.classList.add('d-none');
+            });
+        });
+    </script>
+
+}

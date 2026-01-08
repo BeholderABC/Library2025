@@ -1,0 +1,848 @@
+﻿@page
+@model WebLibrary.Pages.homeModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="home-sections">
+    <!-- 第一部分：包含搜索框、标题和三个白色长方形区域 -->
+    <section class="section-full home-hero">
+        <div class="section-inner">
+            <!-- 搜索框和标题在上方 -->
+            <div class="text-center text-light hero-top-section">
+                <h1 class="display-4 mb-4">欢迎来到月落书院</h1>
+                <form method="get" asp-page="/Books/Search" class="home-search">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-7">
+                            <div class="input-group input-group-lg">
+                                <input type="text" class="form-control" name="keyword" placeholder="搜索书名、作者或ISBN..."
+                                    aria-label="搜索书名、作者或ISBN" required />
+                                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> 搜索</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 三个白色长方形区域 -->
+            <div class="row white-rectangle-container">
+                <div class="col-md-4 mb-4">
+                    <div class="white-rectangle">
+                        <div class="rectangle-content">
+                            <div class="service-sections">
+                                <!-- 到院服务 -->
+                                <div class="service-section">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <img src="/images/service.png" alt="到院服务" />
+                                        </div>
+                                        <h4>到院服务</h4>
+                                    </div>
+                                    <ul class="service-list">
+                                        <li><a href="/Guide/ReaderNotice" class="service-link">读者须知</a></li>
+                                        <li><a href="/Guide/SmartGuide" class="service-link">智慧导览服务</a></li>
+                                        <li><a href="/Guide/BorrowNotice" class="service-link">借阅须知</a></li>
+                                        <li><a href="/Guide/Transportation" class="service-link">交通指南</a></li>
+                                    </ul>
+                                </div>
+
+                                <!-- 院藏资源 -->
+                                <div class="service-section">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <img src="/images/book.png" alt="院藏资源" />
+                                        </div>
+                                        <h4>院藏资源</h4>
+                                    </div>
+                                    <ul class="service-list">
+                                        <li><a href="/Books/Search" class="service-link">院藏书目查询</a></li>
+                                        <li><a href="/Lecture/LectureActivities" class="service-link">讲座信息</a></li>
+                                    </ul>
+                                </div>
+
+                                <!-- 咨询服务 -->
+                                <div class="service-section">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <img src="/images/message.png" alt="咨询服务" />
+                                        </div>
+                                        <h4>咨询服务</h4>
+                                    </div>
+                                    <div class="contact-icons">
+                                        <div class="contact-icon" data-tooltip="请添加管理人员" data-image="/images/erwei.png">
+                                            <i class="bi bi-wechat"></i>
+                                            <div class="tooltip-content">
+                                                <div class="tooltip-text">请添加管理人员</div>
+                                                <div class="tooltip-image">
+                                                    <img src="/images/erwei.png" alt="二维码" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="contact-icon" data-tooltip="请至书院一楼服务处咨询">
+                                            <i class="bi bi-person"></i>
+                                            <div class="tooltip-content">
+                                                <div class="tooltip-text">请至书院一楼服务处咨询</div>
+                                            </div>
+                                        </div>
+                                        <div class="contact-icon" data-tooltip="请咨询电话1008611">
+                                            <i class="bi bi-telephone"></i>
+                                            <div class="tooltip-content">
+                                                <div class="tooltip-text">请咨询电话1008611</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="white-rectangle">
+                        <div class="rectangle-content">
+                            <h3 class="text-center mb-3">活动日历</h3>
+
+                            <!-- 日历头部 -->
+                            <div class="calendar-header mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="previousMonth()">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </button>
+                                    <h5 class="mb-0" id="currentMonthYear">@DateTime.Now.ToString("yyyy年M月")</h5>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="nextMonth()">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 星期标题 -->
+                            <div class="calendar-weekdays mb-2">
+                                <div class="row text-center">
+                                    <div class="col">日</div>
+                                    <div class="col">一</div>
+                                    <div class="col">二</div>
+                                    <div class="col">三</div>
+                                    <div class="col">四</div>
+                                    <div class="col">五</div>
+                                    <div class="col">六</div>
+                                </div>
+                            </div>
+
+                            <!-- 日历主体 -->
+                            <div class="calendar-body" id="calendarBody">
+                                @{
+                                    var currentDate = DateTime.Now;
+                                    var firstDayOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+                                    var daysInMonth = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+                                    var firstDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+
+                                    // 填充前面的空白日期
+                                    for (int i = 0; i < firstDayOfWeek; i++)
+                                    {
+                                        <div class="calendar-day empty"></div>
+                                    }
+
+                                    // 填充当月日期
+                                    for (int day = 1; day <= daysInMonth; day++)
+                                    {
+                                        var hasLecture = Model.LectureDates.ContainsKey(day) && Model.LectureDates[day];
+                                        var isToday = day == currentDate.Day;
+                                        var dayClass = "calendar-day";
+                                        if (hasLecture) dayClass += " has-lecture";
+                                        if (isToday) dayClass += " today";
+
+                                        <div class="@dayClass" data-day="@day">
+                                            <span class="day-number">@day</span>
+                                            @if (hasLecture)
+                                            {
+                                                <div class="lecture-indicator"></div>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <!-- 未来活动列表 -->
+                            <div class="upcoming-lectures mt-3">
+                                <h6 class="text-primary mb-2">即将到来的活动</h6>
+                                @if (Model.UpcomingLectures.Any())
+                                {
+                                    <div class="lecture-list">
+                                        @foreach (var lecture in Model.UpcomingLectures)
+                                        {
+                                            <div class="lecture-item">
+                                                <div class="lecture-date">
+                                                    <span class="date-day">@lecture.LectureDate.Day</span>
+                                                    <span class="date-month">@lecture.LectureDate.ToString("MM月")</span>
+                                                </div>
+                                                <div class="lecture-info">
+                                                    <div class="lecture-title">@lecture.Name</div>
+                                                    <div class="lecture-speaker">主讲人：@lecture.Speaker</div>
+                                                    <div class="lecture-time">@lecture.LectureDate.ToString("HH:mm")</div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted text-center">暂无即将到来的活动</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="white-rectangle">
+                        <div class="rectangle-content">
+                            <h3>最近通知</h3>
+                            @if (Model.RecentNotifications.Any())
+                            {
+                                <div class="notification-list">
+                                    @foreach (var notification in Model.RecentNotifications)
+                                    {
+                                        <div class="notification-item @(notification.IsRead ? "read" : "unread")">
+                                            <div class="notification-content">
+                                                <p class="notification-text">@notification.Content</p>
+                                                <div class="notification-meta">
+                                                    <span class="notification-time">@notification.CreateTime.ToString("MM-dd HH:mm")</span>
+                                                    @if (!notification.IsRead)
+                                                    {
+                                                        <span class="badge bg-primary badge-sm">新</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-center mt-3">
+                                    <a href="/Notification/ReceivedNotifications" class="btn btn-outline-primary btn-sm">查看全部通知</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center text-muted">
+                                    <i class="bi bi-bell-slash" style="font-size: 2rem; opacity: 0.5;"></i>
+                                    <p class="mt-2">暂无通知</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-full section-white">
+        <div class="section-inner">
+            <div class="floor-guide-container">
+                <div class="opening-hours-header">
+                    <div class="clock-icon">
+                        <img src="/images/clock.png" alt="一览书院" />
+                    </div>
+                    <h3>一览书院</h3>
+                </div>
+
+                <!-- 导览标题 -->
+                <div class="floor-guide-header">
+                    <h2>书院导览</h2>
+                    <a href="#" class="view-details">查看详情>></a>
+                </div>
+
+                <!-- 主要内容区域 -->
+                <div class="floor-guide-content">
+                    <div class="floor-nav">
+                        <!-- 建筑区域选择 -->
+                        <div class="building-tabs">
+                            <button class="building-tab active" data-building="zhongshan">中山路院</button>
+                            <button class="building-tab" data-building="function">功能厅</button>
+                        </div>
+
+                        <!-- 楼层选择 -->
+                        <div class="floor-buttons" id="zhongshan-buttons">
+                            <button class="floor-btn active" data-floor="1F">1F</button>
+                            <button class="floor-btn" data-floor="2F">2F</button>
+                            <button class="floor-btn" data-floor="3F">3F</button>
+                        </div>
+
+                        <!-- 功能厅选择 -->
+                        <div class="floor-buttons" id="function-buttons" style="display: none;">
+                            <button class="floor-btn" data-floor="咖啡厅">咖啡厅</button>
+                            <button class="floor-btn" data-floor="演讲厅">演讲厅</button>
+                            <button class="floor-btn" data-floor="阅览室">阅览室</button>
+                        </div>
+                    </div>
+
+                    <div class="floor-map">
+                        <img id="floor-image" src="/images/1F.png" alt="楼层图" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-full section-white">
+        <div class="section-inner">
+            <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
+                <h2 class="text-primary position-absolute start-50 translate-middle-x">热门图书</h2>
+                <a href="/List/HotBookList" class="btn btn-outline-primary ms-auto">查看完整榜单</a>
+            </div>
+
+            @if (Model.HotBooks.Any())
+            {
+                <!-- 全站热门图书 - 使用与热门榜相同的样式 -->
+                <div class="curated-list-container">
+                    @for (int i = 0; i < Model.HotBooks.Count && i < 10; i++)
+                    {
+                        var book = Model.HotBooks[i];
+                        <div class="book" data-book-id="@book.BookId">
+                            <div class="book-cover">
+                                <img src="/api/bookcover/@book.BookId" alt="@book.Title" class="book-cover-img" onerror="this.style.display='none'" />
+                                <div class="book-rank">第 @(i + 1) 名</div>
+                                <div class="book-info">
+                                    <div class="rating">
+                                        <span class="star">★</span>
+                                        <span>@string.Format("{0:0.0}", book.BookRating)</span>
+                                    </div>
+                                    <div>@book.BorrowCount 借阅</div>
+                                </div>
+                            </div>
+                            <div class="bmeta">
+                                <div class="btitle">@book.Title</div>
+                                <div class="bauthor">@book.Author</div>
+                                <div class="bstats">
+                                    <span>@book.CategoryName</span>
+                                    <span style="color: #10b981;">可借阅</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">暂无热门图书数据</div>
+            }
+
+            
+        </div>
+    </section>
+
+    <script>
+        // 图书卡片点击事件
+        document.querySelectorAll('.curated-list-container .book').forEach(book => {
+            book.addEventListener('click', () => {
+                const bookId = book.dataset.bookId;
+                window.location.href = `/Books/BookDetail?id=${bookId}`;
+            });
+
+            book.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') book.click();
+            });
+        });
+    </script>
+
+    <section class="section-full section-dark">
+        <div class="section-inner">
+            <!-- 顶部导航信息栏 -->
+            <div class="footer-nav">
+                <button class="nav-btn active" data-content="traffic">交通信息</button>
+                <button class="nav-btn" data-content="hours">开馆时间</button>
+                <button class="nav-btn" data-content="links">友情链接</button>
+                <button class="nav-btn" data-content="about">关于我们</button>
+            </div>
+
+            <div class="footer-content">
+                <!-- 交通信息内容 -->
+                <div class="content-section active" id="traffic-content">
+                    <div class="footer-left">
+                        <!-- 中山路院 -->
+                        <div class="branch-info">
+                            <div class="branch-header">
+                                <h3>中山路院</h3>
+                            </div>
+                            <div class="branch-details">
+                                <p><strong>地址:</strong> 淮海中路1555号</p>
+                                <p><strong>地铁:</strong> 1/2号线四平路站</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧组织信息 -->
+                    <div class="footer-right">
+                        <div class="org-info">
+                            <div class="org-logo">
+                                <img src="/images/logo.png" alt="Logo" />
+                            </div>
+                            <div class="org-text">
+                                <img src="/images/title.png" alt="Title" />
+                            </div>
+                        </div>
+
+                        <div class="copyright-info">
+                            <p>感谢上海图书馆(上海科学技术情报研究所)提供页面范例</p>
+                            <p>同济大学软件工程数据库课程设计</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 开馆时间内容 -->
+                <div class="content-section" id="hours-content">
+                    <div class="opening-hours-content">
+                        <h3>开馆时间</h3>
+                        <div class="hours-list">
+                            <p><strong>周一：</strong>13：00-17：00</p>
+                            <p><strong>周二至周日：</strong>8：00-17：00</p>
+                            <p><strong>国定节假日：</strong>9：00-16：00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 友情链接内容 -->
+                <div class="content-section" id="links-content">
+                    <div class="friendly-links-content">
+                        <h3>友情链接</h3>
+                        <div class="links-list">
+                            <p><a href="https://www.library.sh.cn/" target="_blank">上海图书馆</a></p>
+                            <p><a href="https://sse.tongji.edu.cn/" target="_blank">同济大学软件学院</a></p>
+                            <p><a href="https://github.com/liyexiaoxiao/Library2025.git" target="_blank">项目代码托管git地址</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关于我们内容 -->
+                <div class="content-section" id="about-content">
+                    <div class="about-content">
+                        <h3>关于我们</h3>
+                        <div class="about-text">
+                            <p>月落书院是一个现代化的图书馆管理系统，依托于书院实体，致力于为读者提供优质的图书借阅服务以及书院导览活动。</p>
+                            <p>感谢上海图书馆(上海科学技术情报研究所)提供页面范例</p>
+                            <p>此为同济大学软件工程数据库课程设计项目</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* 日历样式 */
+    .calendar-header {
+        background-color: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+    }
+
+    .calendar-weekdays {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+
+    .calendar-body {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 1rem;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e9ecef;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        position: relative;
+        background-color: #fff;
+        transition: all 0.2s ease;
+    }
+
+    .calendar-day:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.05);
+    }
+
+    .calendar-day.empty {
+        background-color: transparent;
+        border: none;
+    }
+
+    .calendar-day.today {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    .calendar-day.has-lecture {
+        background-color: #e3f2fd;
+        border-color: #2196f3;
+    }
+
+    .calendar-day.has-lecture .day-number {
+        color: #1976d2;
+        font-weight: 600;
+    }
+
+    .lecture-indicator {
+        position: absolute;
+        bottom: 2px;
+        width: 6px;
+        height: 6px;
+        background-color: #2196f3;
+        border-radius: 50%;
+    }
+
+    .upcoming-lectures {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+    }
+
+    .lecture-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .lecture-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 0.375rem;
+        border-left: 3px solid #007bff;
+    }
+
+    .lecture-date {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 0.75rem;
+        min-width: 50px;
+    }
+
+    .date-day {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #007bff;
+        line-height: 1;
+    }
+
+    .date-month {
+        font-size: 0.75rem;
+        color: #6c757d;
+        line-height: 1;
+    }
+
+    .lecture-info {
+        flex: 1;
+    }
+
+    .lecture-title {
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .lecture-speaker {
+        color: #6c757d;
+        font-size: 0.75rem;
+        margin-bottom: 0.125rem;
+    }
+
+    .lecture-time {
+        color: #007bff;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* 通知样式 */
+    .notification-list {
+        max-height: 400px; /* 从300px增加到400px */
+        overflow-y: auto;
+    }
+
+    .notification-item {
+        padding: 1rem; /* 从0.75rem增加到1rem */
+        margin-bottom: 0.75rem; /* 从0.5rem增加到0.75rem */
+        border-radius: 0.375rem;
+        border-left: 3px solid #e9ecef;
+        background-color: #f8f9fa;
+        transition: all 0.2s ease;
+    }
+
+    .notification-item:hover {
+        background-color: #e9ecef;
+        transform: translateX(2px);
+    }
+
+    .notification-item.unread {
+        border-left-color: #007bff;
+        background-color: #e3f2fd;
+    }
+
+    .notification-item.unread:hover {
+        background-color: #bbdefb;
+    }
+
+    .notification-text {
+        margin-bottom: 0.75rem; /* 从0.5rem增加到0.75rem */
+        font-size: 0.9rem; /* 从0.875rem增加到0.9rem */
+        line-height: 1.5; /* 从1.4增加到1.5 */
+        color: #212529;
+    }
+
+    .notification-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem; /* 从0.75rem增加到0.8rem */
+    }
+
+    .notification-time {
+        color: #6c757d;
+    }
+
+    .badge-sm {
+        font-size: 0.65rem; /* 从0.6rem增加到0.65rem */
+        padding: 0.25rem 0.5rem; /* 从0.2rem 0.4rem增加到0.25rem 0.5rem */
+    }
+</style>
+
+<script>
+    // 全局日历变量和函数
+    let currentYear = @DateTime.Now.Year;
+    let currentMonthIndex = @DateTime.Now.Month - 1;
+
+    // 上个月 - 全局函数
+    function previousMonth() {
+        console.log('点击上个月按钮');
+        currentMonthIndex--;
+        if (currentMonthIndex < 0) {
+            currentMonthIndex = 11;
+            currentYear--;
+        }
+        console.log('切换到:', currentYear, '年', currentMonthIndex + 1, '月');
+        updateCalendar();
+    }
+
+    // 下个月 - 全局函数
+    function nextMonth() {
+        console.log('点击下个月按钮');
+        currentMonthIndex++;
+        if (currentMonthIndex > 11) {
+            currentMonthIndex = 0;
+            currentYear++;
+        }
+        console.log('切换到:', currentYear, '年', currentMonthIndex + 1, '月');
+        updateCalendar();
+    }
+
+    // 更新日历显示 - 全局函数
+    function updateCalendar() {
+        console.log('开始更新日历:', currentYear, '年', currentMonthIndex + 1, '月');
+        const monthYearElement = document.getElementById('currentMonthYear');
+        const calendarBody = document.getElementById('calendarBody');
+
+        if (!monthYearElement || !calendarBody) {
+            console.error('找不到日历元素');
+            return;
+        }
+
+        monthYearElement.textContent = `${currentYear}年${currentMonthIndex + 1}月`;
+
+        // 清空日历
+        calendarBody.innerHTML = '';
+
+        const firstDay = new Date(currentYear, currentMonthIndex, 1);
+        const lastDay = new Date(currentYear, currentMonthIndex + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const firstDayOfWeek = firstDay.getDay();
+
+        // 添加空白日期
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day empty';
+            calendarBody.appendChild(emptyDay);
+        }
+
+        // 添加当月日期
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            const dayNumber = document.createElement('span');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+
+            dayElement.appendChild(dayNumber);
+            dayElement.className = 'calendar-day';
+            dayElement.setAttribute('data-day', day);
+
+            // 检查是否是今天
+            const today = new Date();
+            if (currentYear === today.getFullYear() &&
+                currentMonthIndex === today.getMonth() &&
+                day === today.getDate()) {
+                dayElement.classList.add('today');
+            }
+
+            // 检查是否有讲座
+            if (hasLectureOnDate(currentYear, currentMonthIndex, day)) {
+                dayElement.classList.add('has-lecture');
+                const indicator = document.createElement('div');
+                indicator.className = 'lecture-indicator';
+                dayElement.appendChild(indicator);
+            }
+
+            calendarBody.appendChild(dayElement);
+        }
+    }
+
+    // 检查指定日期是否有讲座 - 全局函数
+    function hasLectureOnDate(year, month, day) {
+        const date = new Date(year, month, day);
+        const dateString = date.toDateString();
+
+        // 从服务器端数据中检查是否有讲座
+        const lectures = @Html.Raw(Json.Serialize(Model.Lectures));
+        return lectures.some(lecture => {
+            const lectureDate = new Date(lecture.lectureDate);
+            return lectureDate.toDateString() === dateString;
+        });
+    }
+
+    // 调试函数：在控制台输出当前状态
+    function debugCalendar() {
+        console.log('当前日历状态:', {
+            year: currentYear,
+            month: currentMonthIndex + 1,
+            lectures: @Html.Raw(Json.Serialize(Model.Lectures))
+        });
+    }
+
+    // 楼层切换功能
+    document.addEventListener('DOMContentLoaded', function () {
+        const floorImage = document.getElementById('floor-image');
+        let currentBuilding = 'zhongshan';
+        let currentFloor = '1F';
+
+        // 建筑区域切换功能
+        const buildingTabs = document.querySelectorAll('.building-tab');
+        const zhongshanButtons = document.getElementById('zhongshan-buttons');
+        const functionButtons = document.getElementById('function-buttons');
+
+        buildingTabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                // 移除所有标签的active类
+                buildingTabs.forEach(t => t.classList.remove('active'));
+
+                // 为当前标签添加active类
+                this.classList.add('active');
+
+                // 获取建筑类型
+                const building = this.getAttribute('data-building');
+                currentBuilding = building;
+
+                // 切换按钮组显示
+                if (building === 'zhongshan') {
+                    zhongshanButtons.style.display = 'flex';
+                    functionButtons.style.display = 'none';
+
+                    // 重置中山路院按钮状态
+                    const zhongshanFloorBtns = zhongshanButtons.querySelectorAll('.floor-btn');
+                    zhongshanFloorBtns.forEach(btn => btn.classList.remove('active'));
+                    zhongshanFloorBtns[0].classList.add('active');
+                    currentFloor = '1F';
+                } else if (building === 'function') {
+                    zhongshanButtons.style.display = 'none';
+                    functionButtons.style.display = 'flex';
+
+                    // 重置功能厅按钮状态
+                    const functionFloorBtns = functionButtons.querySelectorAll('.floor-btn');
+                    functionFloorBtns.forEach(btn => btn.classList.remove('active'));
+                    functionFloorBtns[0].classList.add('active');
+                    currentFloor = '咖啡厅';
+                }
+
+                // 更新图片
+                updateFloorImage();
+            });
+        });
+
+        // 楼层按钮点击事件
+        function setupFloorButtons() {
+            const allFloorButtons = document.querySelectorAll('.floor-btn');
+
+            allFloorButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // 移除当前建筑区域所有按钮的active类
+                    const currentButtonGroup = this.closest('.floor-buttons');
+                    const buttonsInGroup = currentButtonGroup.querySelectorAll('.floor-btn');
+                    buttonsInGroup.forEach(btn => btn.classList.remove('active'));
+
+                    // 为当前按钮添加active类
+                    this.classList.add('active');
+
+                    // 获取楼层信息
+                    currentFloor = this.getAttribute('data-floor');
+
+                    // 更新图片
+                    updateFloorImage();
+                });
+            });
+        }
+
+        // 更新楼层图片
+        function updateFloorImage() {
+            floorImage.src = `/images/${currentFloor}.png`;
+            floorImage.alt = `${currentFloor}平面图`;
+        }
+
+        // 初始化楼层按钮事件
+        setupFloorButtons();
+
+        // 底部导航按钮切换功能
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                // 移除所有按钮的active类
+                navButtons.forEach(btn => btn.classList.remove('active'));
+
+                // 为当前按钮添加active类
+                this.classList.add('active');
+
+                // 获取要显示的内容类型
+                const contentType = this.getAttribute('data-content');
+
+                // 隐藏所有内容区域
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // 显示对应的内容区域
+                const targetContent = document.getElementById(`${contentType}-content`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+
+
+
+
+
+
+
+        // 初始化日历
+        console.log('初始化日历:', currentYear, '年', currentMonthIndex + 1, '月');
+        updateCalendar();
+
+        // 添加调试按钮（可选）
+        console.log('日历功能已加载，可以点击左右箭头进行翻页');
+    });
+</script>

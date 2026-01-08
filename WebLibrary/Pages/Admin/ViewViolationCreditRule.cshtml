@@ -1,0 +1,32 @@
+﻿@page
+@model WebLibrary.Pages.Admin.ViewViolationCreditRuleModel
+@{
+    ViewData["Title"] = "当前违规信用分规则";
+}
+
+<h4 class="text-primary mb-3">当前违规信用分规则设置</h4>
+
+<table class="table table-bordered w-75">
+    <thead>
+        <tr>
+            <th>逾期阈值天数</th>
+            <th>首阈值内扣分</th>
+            <th>超出阈值每日扣分</th>
+            <th>逾期清零次数阈值</th>
+            <th>损坏扣分</th>
+            <th>如期归还加分</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.FirstPeriodDays</td>
+            <td>@Model.FirstPeriodPenalty</td>
+            <td>@Model.ExtraDailyPenalty</td>
+            <td>@Model.OverdueFreezeThreshold</td>
+            <td>@Model.DamagePenalty</td>
+            <td>@Model.OnTimeBonus</td>
+        </tr>
+    </tbody>
+</table>
+
+<a class="btn btn-secondary" href="/Admin/ViolationCreditRuleManagement">返回编辑</a>

@@ -1,0 +1,17 @@
+﻿@page
+@model WebLibrary.Pages.Admin.FineRulesModel
+@{
+    ViewData["Title"] = "罚款规则";
+}
+<h5 class="text-primary mb-3">逾期罚款阶梯设置</h5>
+<form>
+    <div class="mb-3">
+        <label class="form-label">1-7 天 每日罚金 (元)</label>
+        <input type="number" class="form-control w-auto" value="1">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">8-30 天 每日罚金 (元)</label>
+        <input type="number" class="form-control w-auto" value="2">
+    </div>
+    <button type="submit" class="btn btn-primary">保存规则</button>
+</form>

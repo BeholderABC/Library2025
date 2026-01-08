@@ -1,0 +1,98 @@
+﻿@page
+@model WebLibrary.Pages.Account.EditSecurityQuestionsModel
+@{
+	ViewData["Title"] = "编辑密保问题";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success auto-dismiss" role="alert">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+            <div class="alert alert-danger auto-dismiss" role="alert">@TempData["ErrorMessage"]</div>
+}
+
+
+<form method="post" id="securityForm">
+    <div class="form-group">
+        <label>问题1</label>
+        <input asp-for="Question1" class="form-control" id="question1" />
+        <label>答案1</label>
+        <input asp-for="Answer1" class="form-control" id="answer1" />
+    </div>
+
+    <div class="form-group">
+        <label>问题2</label>
+        <input asp-for="Question2" class="form-control" id="question2" />
+        <label>答案2</label>
+        <input asp-for="Answer2" class="form-control" id="answer2" />
+    </div>
+
+    <div class="form-group">
+        <label>问题3</label>
+        <input asp-for="Question3" class="form-control" id="question3" />
+        <label>答案3</label>
+        <input asp-for="Answer3" class="form-control" id="answer3" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">保存</button>
+    <a asp-page="/Account/EditProfile" class="btn btn-secondary mt-3">返回个人资料页面</a>
+</form>
+@section Scripts{
+<script>
+    function updateAnswerState(questionId, answerId) {
+        const q = document.getElementById(questionId);
+        const a = document.getElementById(answerId);
+
+        if (!q || !a) return;
+
+        if (q.value.trim() === "") {
+            a.value = "";
+            a.disabled = true;
+        } else {
+            a.disabled = false;
+        }
+    }
+
+    // 初始化（页面加载时）
+    updateAnswerState("question1", "answer1");
+    updateAnswerState("question2", "answer2");
+    updateAnswerState("question3", "answer3");
+
+    // 绑定事件监听
+    document.getElementById("question1").addEventListener("input", () => {
+        updateAnswerState("question1", "answer1");
+    });
+
+    document.getElementById("question2").addEventListener("input", () => {
+        updateAnswerState("question2", "answer2");
+    });
+
+    document.getElementById("question3").addEventListener("input", () => {
+        updateAnswerState("question3", "answer3");
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            document.querySelectorAll('.auto-dismiss').forEach(el => {
+                el.classList.add('fade');
+                el.style.opacity = 0;
+                setTimeout(() => el.remove(), 500); // 完全移除
+            });
+        }, 5000); // 5秒后淡出
+    });
+    document.getElementById("securityForm").addEventListener("submit", function (e) {
+        for (let i = 1; i <= 3; i++) {
+            const q = document.getElementById("question" + i);
+            const a = document.getElementById("answer" + i);
+            if (q && a && q.value.trim() !== "" && a.value.trim() === "") {
+                e.preventDefault();
+                alert(`请为问题${i}填写答案！`);
+                a.focus();
+                return;
+            }
+        }
+    });
+</script>
+}

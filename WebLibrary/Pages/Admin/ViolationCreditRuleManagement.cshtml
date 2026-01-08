@@ -1,0 +1,129 @@
+﻿@page
+@model WebLibrary.Pages.Admin.ViolationCreditRuleManagementModel
+@{
+    ViewData["Title"] = "违规信用分规则设置";
+}
+
+<section class="section-full">
+    <div class="section-inner">
+        <div class="text-center mb-5">
+            <h1 class="display-5 text-primary">违规信用分规则设置</h1>
+            <p class="text-muted">设置逾期扣分、图书损坏扣分及如期归还加分规则</p>
+        </div>
+
+        <form method="post">
+            <!-- 逾期阈值设置区域 -->
+            <div class="white-rectangle mb-4">
+                <div class="rectangle-content">
+                    <h4 class="text-center mb-3">逾期阈值设置</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">逾期阈值天数</label>
+                            <input type="number" class="form-control" name="FirstPeriodDays"
+                                   value="@Model.FirstPeriodDays" min="1" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">首阈值内扣分</label>
+                            <input type="number" class="form-control" name="FirstPeriodPenalty"
+                                   value="@Model.FirstPeriodPenalty" min="0" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">超出阈值每日扣分</label>
+                            <input type="number" class="form-control" name="ExtraDailyPenalty"
+                                   value="@Model.ExtraDailyPenalty" min="0" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 逾期清零次数设置区域 -->
+            <div class="white-rectangle mb-4">
+                <div class="rectangle-content">
+                    <h4 class="text-center mb-3">逾期清零设置</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">逾期清零次数阈值</label>
+                            <input type="number" class="form-control" name="OverdueFreezeThreshold"
+                                   value="@Model.OverdueFreezeThreshold" min="1" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">损坏图书扣分</label>
+                            <input type="number" class="form-control" name="DamagePenalty"
+                                   value="@Model.DamagePenalty" min="0" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">如期归还加分</label>
+                            <input type="number" class="form-control" name="OnTimeBonus"
+                                   value="@Model.OnTimeBonus" min="0" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-50 py-3 mb-3">保存规则</button>
+            </div>
+
+            <!-- 其他链接 -->
+            <div class="text-center">
+                <a href="/Admin/ViewViolationCreditRule" class="btn btn-outline-secondary w-50 py-3">查看信用分规则</a>
+            </div>
+        </form>
+
+        <!-- 成功提示 -->
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success mt-3 text-center">@TempData["Message"]</div>
+        }
+    </div>
+</section>
+
+<style>
+    /* 设置背景图 */
+    body {
+        background: url('/images/bg-pattern.png') no-repeat center top fixed;
+        background-size: cover; /* 图片自适应填满 */
+    }
+
+    /* 复用首页的“白色长方形”视觉风格 */
+    .white-rectangle {
+        background: #fff;
+        border-radius: 0.6rem;
+        box-shadow: 0 6px 18px rgba(23, 43, 77, 0.06);
+        padding: 1rem;
+        height: 100%;
+    }
+
+    .rectangle-content {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .btn-grid .btn {
+        border-radius: 0.5rem;
+        padding: 0.9rem 1rem;
+        text-align: left;
+    }
+
+        .btn-grid .btn + .btn {
+            margin-top: 0.5rem;
+        }
+
+    /* 信用分规则部分按钮的图标 */
+    .credit-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+    }
+
+    .text-center h4 {
+        font-weight: 600;
+    }
+
+    .alert-success {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+
+    
+</style>

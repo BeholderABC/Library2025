@@ -1,0 +1,328 @@
+﻿@page
+@model WebLibrary.Pages.Admin.UserManagementModel
+@{
+    ViewData["Title"] = "用户管理";
+}
+<div class="d-flex justify-content-between mb-3">
+    <h4 class="text-primary">用户管理</h4>
+    <a asp-page="/Admin/Dashboard" class="btn btn-outline-secondary">返回控制台</a>
+</div>
+<!-- 搜索和筛选区域 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input asp-for="SearchTerm" class="form-control" placeholder="搜索用户名或邮箱..." />
+            </div>
+            <div class="col-md-3">
+                <select asp-for="UserTypeFilter" class="form-select">
+                    <option value="">所有类型</option>
+                    <option value="学生">学生</option>
+                    <option value="教师">教师</option>
+                    <option value="图书馆管理员">图书馆管理员</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select asp-for="StatusFilter" class="form-select">
+                    <option value="">所有状态</option>
+                    <option value="active">可用</option>
+                    <option value="banned">已禁用</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">筛选</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- 用户列表 -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>用户类型</th>
+                        <th>状态</th>
+                        <th>信用分</th> <!-- 新增信用分显示 -->
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                <span class="badge
+                                            @(user.UserType == "学生" ? "bg-primary" :
+                                                                                                                  user.UserType == "教师" ? "bg-success" :
+                                                                                                                  "bg-danger")">
+                                @(user.UserType)
+                            </span>
+                        </td>
+
+                            <td>
+                                <span class="badge bg-@(user.IsActive ? "success" : "warning")">
+                                    @(user.IsActive ? "可用" : "已禁用")
+                                </span>
+                            </td>
+                            <td>@user.CreditScore</td> <!-- 显示信用分 -->
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        操作
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#resetPasswordModal"
+                                               data-userid="@user.UserId"
+                                               data-username="@user.UserName">
+                                                <i class="bi bi-key me-2"></i>重置密码
+                                            </a>
+                                        </li>
+                                    @if (user.UserType != "图书馆管理员" && user.IsActive)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" href="#"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#banUserModal"
+                                                   data-userid="@user.UserId"
+                                                   data-username="@user.UserName">
+                                                    <i class="bi bi-person-gear me-2"></i>禁用
+                                                </a>
+                                            </li>
+                                        }
+                                        @if (user.UserType != "图书馆管理员" && !user.IsActive)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" href="#"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#activateUserModal"
+                                                   data-userid="@user.UserId"
+                                                   data-username="@user.UserName">
+                                                    <i class="bi bi-person-gear me-2"></i>解除禁用
+                                                </a>
+                                            </li>
+                                        }
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#userDetailsModal"
+                                               data-userid="@user.UserId">
+                                                <i class="bi bi-info-circle me-2"></i>用户详情
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @{
+                        const int DesiredRows = 9;
+                        var blankCount = DesiredRows - Model.Users.Count;
+                    }
+                    @if (blankCount > 0)
+                    {
+                        for (int i = 0; i < blankCount; i++)
+                        {
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页控件 -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-page="/Admin/UserManagement" asp-route-CurrentPage="@(Model.CurrentPage - 1)" asp-route-SearchTerm="@Model.SearchTerm" asp-route-UserTypeFilter="@Model.UserTypeFilter" asp-route-StatusFilter="@Model.StatusFilter">上一页</a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-page="/Admin/UserManagement" asp-route-CurrentPage="@(i)" asp-route-SearchTerm="@Model.SearchTerm" asp-route-UserTypeFilter="@Model.UserTypeFilter" asp-route-StatusFilter="@Model.StatusFilter">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" asp-page="/Admin/UserManagement" asp-route-CurrentPage="@(Model.CurrentPage + 1)" asp-route-SearchTerm="@Model.SearchTerm" asp-route-UserTypeFilter="@Model.UserTypeFilter" asp-route-StatusFilter="@Model.StatusFilter">下一页</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- 重置密码模态框 -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">重置密码</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="ResetPassword">
+                <div class="modal-body">
+                    <input type="hidden" id="resetUserId" name="UserId" />
+                    <input type="hidden" id="resetNewPassword" name="NewPassword" />
+                    <p>您正在重置用户 <strong id="resetUsername"></strong> 的密码。</p>
+                    <p>是否将密码重置为：<strong><span id="newPasswordDisplay"></span></strong>？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">确认重置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 用户详情模态框 -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">用户详情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="userDetailsContent">
+                <!-- 详情内容将通过AJAX加载 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--禁用/解禁用户模态框-->
+<div class="modal fade" id="banUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">禁用用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="banUser">
+                <div class="modal-body">
+                    <input type="hidden" id="banUserId" name="UserId" />
+                    <p>您将禁用用户 <strong id="banUsername"></strong> 的账户。</p>
+
+                    <div class="mb-3">
+                        <label class="form-label">禁用原因</label>
+                        <textarea class="form-control" name="Reason" rows="3"
+                                  placeholder="请输入禁用用户的原因（例如：用户多次违规）"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">确认禁用</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="activateUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">解禁用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="activateUser">
+                <div class="modal-body">
+                    <input type="hidden" id="activateUserId" name="UserId" />
+                    <p>您将解除用户 <strong id="activateUsername"></strong> 的账户禁用。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">确认解禁</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<script>
+            // 重置密码模态框初始化
+            $('#resetPasswordModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const userId = button.data('userid');
+                const userName = button.data('username');
+
+                const newPassword = generateRandomPassword();
+                console.log("Reset Password");
+                const modal = $(this);
+                modal.find('#newPasswordDisplay').text(newPassword);
+                modal.find('#resetUserId').val(userId);
+                modal.find('#resetUsername').text(userName);
+                modal.find('#resetNewPassword').val(newPassword);
+            });
+            function generateRandomPassword(){
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!#$%^&*";
+                let password = '';
+                for(let i = 0; i < 10; i++)
+                {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return password;
+
+            }
+            // 用户详情模态框初始化
+            $('#userDetailsModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const userId = button.data('userid');
+                    // 通过AJAX加载用户详情
+                    $.get(`/Admin/UserDetails?userId=${userId}`, function(data) {
+                        $('#userDetailsContent').html(data);
+                    });
+                });
+                //禁用/解禁账户模态框初始化
+                $('#banUserModal').on('show.bs.modal', function(event){
+                    const button = $(event.relatedTarget);
+                    const userId = button.data('userid');
+                    const userName = button.data('username');
+
+                    const modal = $(this);
+                    modal.find('#banUserId').val(userId);
+                    modal.find('#banUsername').text(userName)
+                });
+                //禁用/解禁账户模态框初始化
+                $('#activateUserModal').on('show.bs.modal', function(event){
+                    const button = $(event.relatedTarget);
+                    const userId = button.data('userid');
+                    const userName = button.data('username');
+
+                    console.log("Opening modal for user:", userName);
+
+                    const modal = $(this);
+                    modal.find('#activateUserId').val(userId);
+                    modal.find('#activateUsername').text(userName)
+        });
+        
+        setTimeout(function () {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => alert.remove());
+            }, 5000);
+        
+    </script>
+}

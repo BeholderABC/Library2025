@@ -1,0 +1,20 @@
+﻿@page
+@model WebLibrary.Pages.Admin.StatsReportModel
+@{
+    ViewData["Title"] = "数据报表";
+}
+<h5 class="text-primary mb-3">借阅统计</h5>
+<div class="mb-3">
+    <label class="form-label">时间范围</label>
+    <input type="month" class="form-control w-auto d-inline-block">
+    <button class="btn btn-primary ms-2">查询</button>
+    <button class="btn btn-outline-success ms-2">导出 Excel</button>
+</div>
+<canvas id="statsChart" height="120"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById('statsChart'),{
+        type:'bar',
+        data:{labels:['计算机','文学','历史','艺术'],datasets:[{label:'借阅次数',data:[120,80,45,30],backgroundColor:'#0056b3'}]}
+    });
+</script>

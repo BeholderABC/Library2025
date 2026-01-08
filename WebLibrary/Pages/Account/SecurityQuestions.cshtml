@@ -1,0 +1,28 @@
+﻿@page
+@model WebLibrary.Pages.Account.SecurityQuestionsModel
+@{
+    
+}
+
+<h2 class="mb-4">验证密保问题</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="UserId" />
+
+    <div class="mb-3">
+        <label class="form-label">@Model.Question1</label>
+        <input asp-for="Answer1" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">@Model.Question2</label>
+        <input asp-for="Answer2" class="form-control" required />
+    </div>
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+                        <div class="error-message">
+                            <p class="text-danger mb-0">@Model.ErrorMessage</p>
+                        </div>
+    }
+    <button type="submit" class="btn btn-primary">验证</button>
+</form>
