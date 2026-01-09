@@ -73,7 +73,7 @@ namespace WebLibrary.Pages.Settings
                 if (ExtractType == "All" || ExtractType == "Users")
                 {
                     writer.WriteLine("=== USERS TABLE ===");
-                    using (var cmd_user = new OracleCommand("SELECT USER_ID,USER_NAME,USER_TYPE,EMAIL,PHONE,STATUS,CREDIT_SCORE,IS_LIMITED FROM ADMINISTRATOR.USERS", conn))
+                    using (var cmd_user = new OracleCommand("SELECT USER_ID,USER_NAME,USER_TYPE,EMAIL,STATUS,CREDIT_SCORE,IS_LIMITED FROM ADMINISTRATOR.USERS", conn))
                     using (var r_user = cmd_user.ExecuteReader())
                     {
                         var columnNames = new string[r_user.FieldCount];
@@ -135,7 +135,7 @@ namespace WebLibrary.Pages.Settings
                 
                 if (ExtractType == "All" || ExtractType == "Users")
                 {
-                    using (var cmd_user = new OracleCommand("SELECT USER_ID,USER_NAME,USER_TYPE,EMAIL,PHONE,STATUS,CREDIT_SCORE,IS_LIMITED FROM ADMINISTRATOR.USERS", conn))
+                    using (var cmd_user = new OracleCommand("SELECT USER_ID,USER_NAME,USER_TYPE,EMAIL,STATUS,CREDIT_SCORE,IS_LIMITED FROM ADMINISTRATOR.USERS", conn))
                     using (var r_user = cmd_user.ExecuteReader())
                     {
                         while (r_user.Read())

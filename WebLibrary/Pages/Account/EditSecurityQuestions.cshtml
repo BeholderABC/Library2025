@@ -17,7 +17,7 @@
 <form method="post" id="securityForm">
     <div class="form-group">
         <label>问题1</label>
-        <input asp-for="Question1" class="form-control" id="question1" />
+        <input asp-for="Question" class="form-control" id="Question" />
         <label>答案1</label>
         <input asp-for="Answer1" class="form-control" id="answer1" />
     </div>
@@ -56,13 +56,13 @@
     }
 
     // 初始化（页面加载时）
-    updateAnswerState("question1", "answer1");
+    updateAnswerState("Question", "answer1");
     updateAnswerState("question2", "answer2");
     updateAnswerState("question3", "answer3");
 
     // 绑定事件监听
-    document.getElementById("question1").addEventListener("input", () => {
-        updateAnswerState("question1", "answer1");
+    document.getElementById("Question").addEventListener("input", () => {
+        updateAnswerState("Question", "answer1");
     });
 
     document.getElementById("question2").addEventListener("input", () => {

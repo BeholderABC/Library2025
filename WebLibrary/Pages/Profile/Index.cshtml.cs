@@ -234,7 +234,7 @@ namespace WebLibrary.Pages.Profile
             using var conn = new OracleConnection(_conf.GetConnectionString("OracleDb"));
             conn.Open();
             using var cmd = new OracleCommand(
-                "SELECT user_name, email, phone, user_type, status, credit_score, is_limited " +
+                "SELECT user_name, email, user_type, status, credit_score, is_limited " +
                 "FROM Users " +
                 "WHERE user_id=:id",
                 conn);
@@ -246,7 +246,6 @@ namespace WebLibrary.Pages.Profile
                 {
                     UserName = r["user_name"].ToString()!,
                     Email = r["email"] == DBNull.Value ? null : r["email"].ToString(),
-                    Phone = r["phone"] == DBNull.Value ? null : r["phone"].ToString(),
                     UserType = r["user_type"].ToString()!,
                     Status = r["status"].ToString()!,
                     CreditScore = Convert.ToInt32(r["credit_score"]),
@@ -265,10 +264,6 @@ namespace WebLibrary.Pages.Profile
                 DbUniqueChecker.Exists(_conf, "EMAIL", UserInfo.Email, excludeId: userId))
                 return false;
 
-            if (!string.IsNullOrWhiteSpace(UserInfo.Phone) &&
-                DbUniqueChecker.Exists(_conf, "PHONE", UserInfo.Phone, excludeId: userId))
-                return false;
-
             return true;
         }
 
@@ -282,13 +277,11 @@ namespace WebLibrary.Pages.Profile
                 "SET " +
                 "user_name = :un, " +
                 "email = :em, " +
-                "phone = :ph " +
                 "WHERE user_id = :id",
                 conn);
             cmd.BindByName = true;
             cmd.Parameters.Add("un", UserInfo.UserName);
             cmd.Parameters.Add("em", string.IsNullOrWhiteSpace(UserInfo.Email) ? DBNull.Value : UserInfo.Email);
-            cmd.Parameters.Add("ph", string.IsNullOrWhiteSpace(UserInfo.Phone) ? DBNull.Value : UserInfo.Phone);
             cmd.Parameters.Add("id", userId);
 
             cmd.ExecuteNonQuery();

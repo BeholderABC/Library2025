@@ -36,7 +36,7 @@ namespace WebLibrary.Pages.Admin
                     UserName = reader["User_Name"].ToString(),
                     Email = reader["Email"].ToString(),
                     UserType = reader["User_Type"].ToString(),
-                    IsActive = reader["Status"].ToString() == "∆Ù”√",
+                    IsActive = reader["Status"].ToString() == "Active",
                 };
             }
         }

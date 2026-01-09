@@ -39,16 +39,6 @@
                                             <span asp-validation-for="Email" class="text-danger validation-message"></span>
                                         </div>
                                     </div>
-
-                                    <!-- 手机号 -->
-                                    <div class="profile-row">
-                                        <div class="profile-label">手机号</div>
-                                        <div class="profile-value">
-                                            <input asp-for="Phone" class="form-control" />
-                                            <span asp-validation-for="Phone" class="text-danger validation-message"></span>
-                                        </div>
-                                    </div>
-
                                     <!-- 密码（可选） -->
                                     <div class="profile-row">
                                         <div class="profile-label">新密码（留空不修改）</div>
@@ -80,33 +70,11 @@
                                                 <div class="form-group">
                                                     <div class="profile-row">
                                                         <div class="profile-label">问题1</div>
-                                                        <div class="profile-value"><input asp-for="Question1" class="form-control" id="question1" /></div>
+                                                        <div class="profile-value"><input asp-for="Question" class="form-control" id="Question" /></div>
                                                     </div>
                                                     <div class="profile-row">
                                                         <div class="profile-label">答案1</div>
-                                                        <div class="profile-value"><input asp-for="Answer1" class="form-control" id="answer1" /></div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <div class="profile-row">
-                                                        <div class="profile-label">问题2</div>
-                                                        <div class="profile-value"><input asp-for="Question2" class="form-control" id="question2" /></div>
-                                                    </div>
-                                                    <div class="profile-row">
-                                                        <div class="profile-label">答案2</div>
-                                                        <div class="profile-value"><input asp-for="Answer2" class="form-control" id="answer2" /></div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <div class="profile-row">
-                                                        <div class="profile-label">问题3</div>
-                                                        <div class="profile-value"><input asp-for="Question3" class="form-control" id="question3" /></div>
-                                                    </div>
-                                                    <div class="profile-row">
-                                                        <div class="profile-label">答案3</div>
-                                                         <div class="profile-value"><input asp-for="Answer3" class="form-control" id="answer3" /></div>
+                                                        <div class="profile-value"><input asp-for="Answer" class="form-control" id="answer" /></div>
                                                     </div>
                                                 </div>
 
@@ -143,23 +111,14 @@
     }
 
     // 初始化（页面加载时）
-    updateAnswerState("question1", "answer1");
-    updateAnswerState("question2", "answer2");
-    updateAnswerState("question3", "answer3");
+    updateAnswerState("Question", "answer1");
     updateAnswerState("password", "confirmpassword");
 
     // 绑定事件监听
-    document.getElementById("question1").addEventListener("input", () => {
-        updateAnswerState("question1", "answer1");
+    document.getElementById("Question").addEventListener("input", () => {
+        updateAnswerState("Question", "answer1");
     });
 
-    document.getElementById("question2").addEventListener("input", () => {
-        updateAnswerState("question2", "answer2");
-    });
-
-    document.getElementById("question3").addEventListener("input", () => {
-        updateAnswerState("question3", "answer3");
-    });
 
     document.getElementById("password").addEventListener("input", () => {
         updateAnswerState("password", "confirmpassword");
@@ -175,16 +134,15 @@
         }, 5000); // 5秒后淡出
     });
     document.getElementById("securityForm").addEventListener("submit", function (e) {
-        for (let i = 1; i <= 3; i++) {
-            const q = document.getElementById("question" + i);
-            const a = document.getElementById("answer" + i);
+            const q = document.getElementById("question");
+            const a = document.getElementById("answer");
             if (q && a && q.value.trim() !== "" && a.value.trim() === "") {
                 e.preventDefault();
-                alert(`请为问题${i}填写答案！`);
+                alert(`请为密保问题填写答案！`);
                 a.focus();
                 return;
             }
-        }
+        
     });
 </script>
 

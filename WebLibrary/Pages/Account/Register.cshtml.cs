@@ -52,25 +52,19 @@ namespace WebLibrary.Pages.Account
                 ErrorMessage = "邮箱已被注册";
                 return Page();
             }
-            if (!string.IsNullOrWhiteSpace(Phone) &&
-                DbUniqueChecker.Exists(_cfg, "PHONE", Phone))
-            {
-                ErrorMessage = "手机号已被注册";
-                return Page();
-            }
+            
 
             // 3. 插入
             using var cmd = new OracleCommand(
-                @"INSERT INTO ADMINISTRATOR.USERS
-                  (USER_ID, USER_NAME, PASSWORD, USER_TYPE, EMAIL, PHONE)
+                @"INSERT INTO USERS
+                  (USER_ID, USER_NAME, PASSWORD, USER_TYPE, EMAIL)
                   VALUES
-                  (ADMINISTRATOR.USERS_SEQ.NEXTVAL, :un, :pw, :ut, :em, :ph)", conn);
+                  (USER_SEQ.NEXTVAL, :un, :pw, :ut, :em)", conn);
 
             cmd.Parameters.Add("un", UserName);
             cmd.Parameters.Add("pw", PasswordHelper.HashPassword(Password));
             cmd.Parameters.Add("ut", UserType);
             cmd.Parameters.Add("em", (object?)Email ?? DBNull.Value);
-            cmd.Parameters.Add("ph", (object?)Phone ?? DBNull.Value);
 
             cmd.ExecuteNonQuery();
             return RedirectToPage("/Account/Login");

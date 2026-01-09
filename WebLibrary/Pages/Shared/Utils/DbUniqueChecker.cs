@@ -19,8 +19,8 @@ namespace WebLibrary.Pages.Shared.Utils
             conn.Open();
 
             string sql = excludeId.HasValue
-                ? $"SELECT 1 FROM ADMINISTRATOR.USERS WHERE {column} = :val AND USER_ID <> :id"
-                : $"SELECT 1 FROM ADMINISTRATOR.USERS WHERE {column} = :val";
+                ? $"SELECT 1 FROM USERS WHERE {column} = :val AND USER_ID <> :id"
+                : $"SELECT 1 FROM USERS WHERE {column} = :val";
 
             using var cmd = new OracleCommand(sql, conn);
             cmd.BindByName = true;

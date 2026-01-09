@@ -23,8 +23,8 @@ namespace WebLibrary.Pages.Account
             conn.Open();
 
             using var cmd = new OracleCommand(
-                "SELECT USER_ID, PASSWORD, USER_TYPE, STATUS, CREDIT_SCORE " +
-                "FROM ADMINISTRATOR.USERS WHERE USER_NAME = :un", conn);
+                "SELECT USER_ID, PASSWORD, USER_TYPE, STATUS " +
+                "FROM USERS WHERE USER_NAME = :un", conn);
             cmd.Parameters.Add("un", UserName);
 
             using var r = cmd.ExecuteReader();
@@ -40,7 +40,7 @@ namespace WebLibrary.Pages.Account
                 return Page();
             }
 
-            if (r["STATUS"].ToString() != "启用")
+            if (r["STATUS"].ToString() == "Banned")
             {
                 ErrorMessage = "账户被禁用";
                 return Page();
@@ -51,7 +51,6 @@ namespace WebLibrary.Pages.Account
                 new(ClaimTypes.Name, UserName),
                 new("UserId", r["USER_ID"].ToString()!),
                 new(ClaimTypes.Role, r["USER_TYPE"].ToString()!),
-                new("CreditScore", r["CREDIT_SCORE"].ToString()!)
 
         };
             await HttpContext.SignInAsync(

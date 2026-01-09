@@ -42,9 +42,9 @@ namespace WebLibrary.Pages.Account
                 if (await reader.ReadAsync()) 
                 {
                     int questionNum = reader.GetInt32(0);
-                    if (questionNum < 2)
+                    if (questionNum < 1)
                     {
-                        ErrorMessage = "设置的安全问题不足，无法通过安全问题重置密码，请联系管理员协助";
+                        ErrorMessage = "未设置安全问题，无法通过安全问题重置密码，请联系管理员协助";
                         return Page();
                     }
                     else
@@ -60,18 +60,16 @@ namespace WebLibrary.Pages.Account
                             }
                         }
 
-                        if(validQuetionsCount < 2)
+                        if(validQuetionsCount < 1)
                         {
-                            ErrorMessage = "设置的安全问题不足，无法通过安全问题重置密码，请联系管理员协助";
+                            ErrorMessage = "未设置安全问题，无法通过安全问题重置密码，请联系管理员协助";
                             return Page();
                         }
                         HttpContext.Session.SetInt32("ResetUserId", userId.Value);
                         HttpContext.Session.SetInt32("Q1_Index", questions[0].Index);
-                        HttpContext.Session.SetInt32("Q2_Index", questions[1].Index);
                         return RedirectToPage("SecurityQuestions", new
                         {
-                            q1 = questions[0].Text,
-                            q2 = questions[1].Text
+                            q1 = questions[0].Text
                         });
                     }
                 }

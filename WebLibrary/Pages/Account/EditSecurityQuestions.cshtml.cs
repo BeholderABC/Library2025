@@ -7,7 +7,7 @@ namespace WebLibrary.Pages.Account
     public class EditSecurityQuestionsModel : PageModel
     {
         [BindProperty]
-        public string? Question1 { get; set; }
+        public string? Question { get; set; }
         [BindProperty]
         public string? Question2 { get; set; }
         [BindProperty]
@@ -36,7 +36,7 @@ namespace WebLibrary.Pages.Account
             using var reader = questionCmd.ExecuteReader();
             if (reader.Read())
             {
-                Question1 = reader["question_text1"]?.ToString();
+                Question = reader["question_text1"]?.ToString();
                 Question2 = reader["question_text2"]?.ToString();
                 Question3 = reader["question_text3"]?.ToString();
                 Answer1 = reader["answer_text1"]?.ToString();
@@ -48,7 +48,7 @@ namespace WebLibrary.Pages.Account
 		{
 			var userId = User.FindFirst("UserId")?.Value;
 
-            if ((!string.IsNullOrWhiteSpace(Question1) && string.IsNullOrWhiteSpace(Answer1)) ||
+            if ((!string.IsNullOrWhiteSpace(Question) && string.IsNullOrWhiteSpace(Answer1)) ||
 				(!string.IsNullOrWhiteSpace(Question2) && string.IsNullOrWhiteSpace(Answer2)) ||
 				(!string.IsNullOrWhiteSpace(Question3) && string.IsNullOrWhiteSpace(Answer3)))
             {
@@ -88,13 +88,13 @@ namespace WebLibrary.Pages.Account
 				}
 				updateCmd.BindByName = true;
 				int questionCount = 0;
-                if (!string.IsNullOrWhiteSpace(Question1)) questionCount++;
+                if (!string.IsNullOrWhiteSpace(Question)) questionCount++;
                 if (!string.IsNullOrWhiteSpace(Question2)) questionCount++;
                 if (!string.IsNullOrWhiteSpace(Question3)) questionCount++;
 
                 updateCmd.Parameters.Add("id", userId);
 				updateCmd.Parameters.Add("num", questionCount);
-				updateCmd.Parameters.Add("q1", string.IsNullOrWhiteSpace(Question1) ? DBNull.Value : Question1);
+				updateCmd.Parameters.Add("q1", string.IsNullOrWhiteSpace(Question) ? DBNull.Value : Question);
 				updateCmd.Parameters.Add("a1", string.IsNullOrWhiteSpace(Answer1) ? DBNull.Value : Answer1);
 				updateCmd.Parameters.Add("q2", string.IsNullOrWhiteSpace(Question2) ? DBNull.Value : Question2);
 				updateCmd.Parameters.Add("a2", string.IsNullOrWhiteSpace(Answer2) ? DBNull.Value : Answer2);

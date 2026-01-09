@@ -5,6 +5,8 @@ using Oracle.ManagedDataAccess.Client;
 using System.Data;
 using WebLibrary.Pages.Shared.Utils;
 using Microsoft.Extensions.Configuration;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace WebLibrary.Pages.Admin
 {
@@ -37,7 +39,6 @@ namespace WebLibrary.Pages.Admin
             public string? Email { get; set; } = "";
             public string UserType { get; set; } = "学生";
             public bool IsActive { get; set; } = true;
-            public int CreditScore { get; set; } = 100;
         }
 
         [BindProperty]
@@ -61,7 +62,7 @@ namespace WebLibrary.Pages.Admin
 
             // 构建基础查询
             string baseQuery = @"
-                SELECT User_Id, User_Name, Email, User_Type, Status, Credit_Score
+                SELECT User_Id, User_Name, Email, User_Type, Status
                 FROM Users 
                 WHERE 1=1";
 
@@ -106,6 +107,11 @@ namespace WebLibrary.Pages.Admin
             {
                 int userId = reader.GetInt32(0);
                 if (userId == -1) continue;
+                var UserName = reader.GetString(1);
+                var Email = reader.IsDBNull(2) ? null : reader.GetString(2);
+                var UserType = reader.GetString(3);
+                var status = reader.IsDBNull(4) ? "" : reader.GetString(4);
+                var IsActive = status == "Active";
 
                 Users.Add(new UserInfo
                 {
@@ -113,8 +119,7 @@ namespace WebLibrary.Pages.Admin
                     UserName = reader.GetString(1),
                     Email = reader.IsDBNull(2) ? null : reader.GetString(2),
                     UserType = reader.GetString(3),
-                    IsActive = reader.GetString(4) == "启用",
-                    CreditScore = reader.GetInt32(5),
+                    IsActive = reader.GetString(4) == "Active",
                 });
             }
         }
@@ -129,7 +134,7 @@ namespace WebLibrary.Pages.Admin
             if (!string.IsNullOrEmpty(UserTypeFilter))
                 cmd.Parameters.Add("userType", UserTypeFilter);
             if (!string.IsNullOrEmpty(StatusFilter))
-                cmd.Parameters.Add("isActive", StatusFilter == "active" ? "启用" : "禁用");
+                cmd.Parameters.Add("isActive", StatusFilter == "active" ? "Active" : "Banned");
         }
         public IActionResult OnPostResetPassword()
         {
@@ -200,7 +205,7 @@ namespace WebLibrary.Pages.Admin
                 // 更新用户状态
                 using var cmd = new OracleCommand(
                     "UPDATE Users SET Status = :status, ban_reason = :reason WHERE User_Id = :id", conn);
-                cmd.Parameters.Add("status", "禁用");
+                cmd.Parameters.Add("status", "Banned");
                 cmd.Parameters.Add("reason", Reason ?? (object)DBNull.Value);
                 cmd.Parameters.Add("id", userId);
                 cmd.ExecuteNonQuery();
@@ -230,7 +235,7 @@ namespace WebLibrary.Pages.Admin
                 // 更新用户状态
                 using var cmd = new OracleCommand(
                     "UPDATE Users SET Status = :status WHERE User_Id = :id", conn);
-                cmd.Parameters.Add("status", "启用");
+                cmd.Parameters.Add("status", "Active");
                 cmd.Parameters.Add("id", userId);
                 cmd.ExecuteNonQuery();
                 TempData["SuccessMessage"] = $"用户已成功解禁";

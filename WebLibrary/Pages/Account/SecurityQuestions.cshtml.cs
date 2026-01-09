@@ -12,25 +12,21 @@ namespace WebLibrary.Pages.Account
         public string ErrorMessage { get; set; } = string.Empty;
 
         [BindProperty] public int UserId { get; set; }
-        [BindProperty] public string Answer1 { get; set; } = string.Empty;
-        [BindProperty] public string Answer2 { get; set; } = string.Empty;
+        [BindProperty] public string Answer { get; set; } = string.Empty;
 
-        public string? Question1 { get; set; }
-        public string? Question2 { get; set; }
-        public void OnGet(string q1, string q2)
+        public string? Question { get; set; }
+        public void OnGet(string question)
         {
             UserId = HttpContext.Session.GetInt32("ResetUserId") ?? 0;
-            Question1 = q1;
-            Question2 = q2;
+            Question = question;
         }
         public async Task<IActionResult> OnPostAsync()
         {
             var q1Index = HttpContext.Session.GetInt32("Q1_Index");
-            var q2Index = HttpContext.Session.GetInt32("Q2_Index");
             using var conn = new OracleConnection(_config.GetConnectionString("OracleDb"));
             await conn.OpenAsync();
             using var cmd = new OracleCommand(
-            "SELECT answer_text1, answer_text2, answer_text3 " +
+            "SELECT answer_text" +
             "FROM User_Answers WHERE user_id = :id", conn);
             cmd.Parameters.Add("id", UserId);
             using var reader = await cmd.ExecuteReaderAsync();
@@ -38,12 +34,11 @@ namespace WebLibrary.Pages.Account
             if (await reader.ReadAsync())
             {
                 string? storedAnswer1 = reader.IsDBNull(q1Index.Value-1) ? null : reader.GetString(q1Index.Value-1);
-                string? storedAnswer2 = reader.IsDBNull(q2Index.Value-1) ? null : reader.GetString(q2Index.Value-1);
-                if(storedAnswer1 == null ||  storedAnswer2 == null)
+                if(storedAnswer1 == null)
                 {
                     ModelState.AddModelError("", "密保问题答案为空");
                 }
-                if ((Answer1 == storedAnswer1) && (Answer2 == storedAnswer2))
+                if (Answer == storedAnswer1)
                 {
                     // 答案正确，进入密码重置页面
                     return RedirectToPage("ResetPassword");

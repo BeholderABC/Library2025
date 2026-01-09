@@ -26,7 +26,6 @@ namespace WebLibrary.Pages.Account
                 {
                     UserName = r["user_name"].ToString()!,
                     Email = r["email"].ToString()!,
-                    Phone = r["phone"].ToString()!,
                     UserType = r["user_type"].ToString()!,
                     Status = r["status"].ToString()!,
                     CreditScore = Convert.ToInt32(r["credit_score"]),
