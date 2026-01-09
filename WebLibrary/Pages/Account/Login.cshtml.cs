@@ -57,7 +57,7 @@ namespace WebLibrary.Pages.Account
             await HttpContext.SignInAsync(
                 new ClaimsPrincipal(
                     new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)));
-            return Redirect("/home");
+            return RedirectToPage("/home");
         }
     }
 }

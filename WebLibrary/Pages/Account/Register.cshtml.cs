@@ -13,9 +13,8 @@ namespace WebLibrary.Pages.Account
         [BindProperty] public string UserName { get; set; } = "";
         [BindProperty] public string Password { get; set; } = "";
         [BindProperty] public string ConfirmPassword { get; set; } = "";
-        [BindProperty] public string UserType { get; set; } = "Ñ§Éú";
+        [BindProperty] public string UserType { get; set; } = "¶ÁÕß";
         [BindProperty] public string? Email { get; set; }
-        [BindProperty] public string? Phone { get; set; }
 
         public string? ErrorMessage { get; set; }
 
