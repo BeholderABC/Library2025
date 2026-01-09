@@ -1,0 +1,335 @@
+@page
+@model WebLibrary.Pages.Guide.BorrowNoticeModel
+@{
+    ViewData["Title"] = "借阅须知";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Guide">指南</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">借阅须知</li>
+                </ol>
+            </nav>
+            
+            <h2 class="mb-4">
+                <i class="bi bi-book text-primary"></i> 借阅须知
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- 借阅规则 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-rulers"></i> 借阅规则</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="rule-item">
+                                <h6><i class="bi bi-1-circle text-primary"></i> 借阅资格</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check text-success"></i> 持有效身份证件</li>
+                                    <li><i class="bi bi-check text-success"></i> 完成读者注册</li>
+                                    <li><i class="bi bi-check text-success"></i> 无逾期未还图书</li>
+                                    <li><i class="bi bi-check text-success"></i> 无欠费记录</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="rule-item">
+                                <h6><i class="bi bi-2-circle text-primary"></i> 借阅数量</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check text-success"></i> 借阅数量不限</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="rule-item">
+                                <h6><i class="bi bi-3-circle text-primary"></i> 借阅期限</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check text-success"></i> 学生：30天</li>
+                                    <li><i class="bi bi-check text-success"></i> 教职工：60天</li>
+                                    <li><i class="bi bi-check text-success"></i> 管理员：60天</li>
+                                    <li><i class="bi bi-check text-success"></i> 信用分>80：可多借阅14天</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="rule-item">
+                                <h6><i class="bi bi-4-circle text-primary"></i> 续借规则</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check text-success"></i> 最多续借2次</li>
+                                    <li><i class="bi bi-check text-success"></i> 每次续借15天</li>
+                                    <li><i class="bi bi-check text-success"></i> 到期前10天可续借</li>
+                                    <li><i class="bi bi-check text-success"></i> 无预约图书可续借</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 借阅流程 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-arrow-right-circle"></i> 到院借阅流程</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>查找图书</h6>
+                                <p>通过检索系统查找所需图书，确认馆藏位置和可借状态</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success">
+                                <i class="bi bi-geo-alt"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>前往书架</h6>
+                                <p>根据索书号找到图书所在书架位置</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning">
+                                <i class="bi bi-credit-card"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>办理借阅</h6>
+                                <p>持读者证到借阅台或使用自助借还机办理借阅手续</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>确认借阅</h6>
+                                <p>确认借阅信息，取回读者证和借书单</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注意事项 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> 注意事项</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6><i class="bi bi-clock"></i> 逾期处理</h6>
+                        <p>罚款: 逾期1-7天罚款每天增加一元，7天以上每天增加两元，罚款最大值为100元。</p>
+                        <p>信用分: 逾期7天内扣除10分，7天后每天扣除5分，直到信用分扣至0为止。三次以上逾期信用分清零。损坏图书扣除5分。如期归还一次加5分信用分。</p>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h6><i class="bi bi-x-circle"></i> 损坏赔偿</h6>
+                        <p>图书损坏或丢失需按原价赔偿，珍贵图书按市场价赔偿</p>
+                    </div>
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-bookmark"></i> 预约服务</h6>
+                        <p>图书被借出时可申请预约，图书归还后将通知您</p>
+                    </div>
+                    <div class="alert alert-success">
+                        <h6><i class="bi bi-arrow-clockwise"></i> 续借提醒</h6>
+                        <p>系统会在到期前3天发送续借提醒，请注意查收</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 常见问题 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-question-circle"></i> 常见问题</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFaqOne">
+                                    如何查询我的借阅记录？
+                                </button>
+                            </h2>
+                            <div id="collapseFaqOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    登录个人中心，在"我的借阅"页面可以查看当前借阅和借阅历史记录。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFaqTwo">
+                                    图书逾期了怎么办？
+                                </button>
+                            </h2>
+                            <div id="collapseFaqTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    请尽快归还图书并缴纳滞纳金。滞纳金可在借阅台或自助缴费机缴纳。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFaqThree">
+                                    可以代借图书吗？
+                                </button>
+                            </h2>
+                            <div id="collapseFaqThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    不可以，借阅必须本人持有效证件办理，不得代借。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faqFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFaqFour">
+                                    如何预约图书？
+                                </button>
+                            </h2>
+                            <div id="collapseFaqFour" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    在图书详情页面点击"预约"按钮，图书归还后系统会发送通知。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- 快速操作 -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> 快速操作</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/Borrow/MyBorrows" class="btn btn-outline-primary">
+                            <i class="bi bi-book"></i> 我的借阅
+                        </a>
+                        <a href="/Borrow/History" class="btn btn-outline-success">
+                            <i class="bi bi-clock-history"></i> 借阅历史
+                        </a>
+                        <a href="/Borrow/Renew" class="btn btn-outline-warning">
+                            <i class="bi bi-arrow-clockwise"></i> 续借图书
+                        </a>
+                        <a href="/Borrow/Reservation" class="btn btn-outline-info">
+                            <i class="bi bi-bookmark"></i> 我的预约
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="card">
+                <div class="card-header" style="background-color: rgb(0, 83, 131); color: white;">
+                    <h5 class="mb-0"><i class="bi bi-telephone"></i> 借阅服务</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="bi bi-telephone-fill text-primary me-2"></i> 电话：1006811</p>
+                    <p><i class="bi bi-envelope-fill text-primary me-2"></i> 邮箱：yueluolib@example.com</p>
+                    <p><i class="bi bi-geo-alt-fill text-primary me-2"></i> 地址：上海市杨浦区淮海中路1555号</p>
+                    <p><i class="bi bi-clock-fill text-primary me-2"></i> 服务时间：8:00-17:00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rule-item {
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        height: 100%;
+    }
+    
+    .rule-item h6 {
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 1rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: -2.5rem;
+        top: 0;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+    }
+    
+    .timeline-content {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-left: 1rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #e7f3ff;
+        color: #0c63e4;
+    }
+</style> 

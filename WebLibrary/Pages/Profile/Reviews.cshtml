@@ -1,0 +1,65 @@
+@page
+@model WebLibrary.Pages.Profile.ProfileModel
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>我的书评</title>
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+
+<body>
+  <div class="library-profile-container">
+    <div class="wrap">
+      <partial name="_SpaceCover" />
+
+      <div class="main">
+        <div class="card">
+          <partial name="_SpaceNav" />
+
+          <div class="reviews-content">
+            <h2>我的评论</h2>
+            
+            @if (Model.UserComments.Count > 0)
+            {
+                <div class="reviews-list">
+                  @foreach (var comment in Model.UserComments)
+                  {
+                      <div class="review-item">
+                          <div class="review-header">
+                              <h4 class="book-title">《@comment.BookTitle》</h4>
+                              <div class="rating-stars">
+                                  <span class="stars">@(new string('★', comment.Rating) + new string('☆', 5 - comment.Rating))</span>
+                                  <span class="rating-text">(@comment.Rating 分)</span>
+                              </div>
+                          </div>
+                          
+                          <p class="comment-text">@comment.Content</p>
+                          
+                          <div class="review-date">
+                              <i class="icon-clock"></i>
+                              @comment.CommentDate.ToString("yyyy年MM月dd日 HH:mm")
+                          </div>
+                      </div>
+                  }
+                </div>
+            }
+            else
+            {
+                <div class="no-reviews">
+                    <div class="no-reviews-icon">📝</div>
+                    <h3>暂无评论</h3>
+                    <p>您还没有发表过任何书评</p>
+                </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <partial name="_SpaceAvatar" />
+</body>
+</html>

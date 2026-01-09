@@ -1,0 +1,60 @@
+@page
+@model WebLibrary.Pages.Borrow.HistoryModel
+@{
+    ViewData["Title"] = "借阅记录";
+}
+
+<h5 class="text-primary mb-3">借阅记录</h5>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>书名</th>
+            <th>作者</th>
+            <th>借阅日期</th>
+            <th>应还日期</th>
+            <th>归还日期</th>
+            <th>续借次数</th>
+            <th>状态</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model.BorrowHistory != null && Model.BorrowHistory.Count > 0)
+    {
+        foreach (var record in Model.BorrowHistory)
+        {
+            <tr>
+                <td>@record.BookTitle</td>
+                <td>@record.Author</td>
+                <td>@record.BorrowDate.ToString("yyyy-MM-dd")</td>
+                <td>@record.DueDate.ToString("yyyy-MM-dd")</td>
+                <td>@(record.ReturnDate.HasValue ? record.ReturnDate.Value.ToString("yyyy-MM-dd") : "无")</td>
+                <td>@record.RenewTimes</td>
+                <td>
+                    @switch(record.Status)
+                    {
+                        case "lending":
+                            <span class="badge bg-primary">借阅中</span>
+                            break;
+                        case "returned":
+                            <span class="badge bg-success">已归还</span>
+                            break;
+                        case "overdue":
+                            <span class="badge bg-danger">逾期未还</span>
+                            break;
+                        case "overdue_returned":
+                            <span class="badge bg-warning">逾期归还</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">未知</span>
+                            break;
+                    }
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr><td colspan="7" class="text-center">暂无借阅记录</td></tr>
+    }
+    </tbody>
+</table> 

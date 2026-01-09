@@ -1,0 +1,75 @@
+﻿@page
+@model WebLibrary.Pages.Borrow.ReservationModel
+@{
+    ViewData["Title"] = "我的预约";
+}
+@if (TempData["FulfilledMessage"] != null)
+{
+    <div class="modal fade show" id="fulfilledModal" tabindex="-1" style="display:block; background:rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">借阅通知</h5>
+                    <button type="button" class="btn-close" onclick="document.getElementById('fulfilledModal').style.display='none';"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@TempData["FulfilledMessage"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="document.getElementById('fulfilledModal').style.display='none';">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<h5 class="text-primary mb-3">预约队列</h5>
+@if (Model.Reservations == null || !Model.Reservations.Any())
+{
+    <div class="alert alert-info text-center">无预约记录</div>
+}
+else
+{
+<table class="table table-hover">
+    <thead><tr><th>书名</th><th>排队位次</th><th>状态</th><th>操作</th></tr></thead>
+    <tbody>
+    @foreach (var item in Model.Reservations)
+    {
+        <tr>
+            <td>@item.BookTitle</td>
+            <td>@(item.Status == "cancelled" ? "无" : item.QueuePosition)</td>
+            <td>
+                @if (item.Status == "pending")
+                {
+                    <span class="badge bg-info">等待到货</span>
+                }
+                else if (item.Status == "cancelled")
+                {
+                    <span class="badge bg-danger">已取消</span>
+                }
+                else if (item.Status == "fulfilled")
+                {
+                    <span class="badge bg-primary">已借阅</span>
+                }
+                else if (item.Status == "notified")
+                {
+                    <span class="badge bg-primary">已通知</span>
+                }
+                else
+                {
+                    <span class="badge bg-light text-dark">@item.Status</span>
+                }
+            </td>
+            <td>
+                <form method="post" asp-page-handler="Cancel" asp-route-id="@item.ReservationId" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" @(item.Status == "cancelled" || item.Status == "fulfilled" || item.Status == "notified" ? "disabled" : "")>取消预约</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+}
+@section Scripts {
+<script>
+</script>
+}

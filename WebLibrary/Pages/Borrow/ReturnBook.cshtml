@@ -1,0 +1,65 @@
+﻿@page
+@model WebLibrary.Pages.Borrow.ReturnBookModel
+@{
+    ViewData["Title"] = "还书";
+}
+<h5 class="text-primary mb-3">归还图书</h5>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h6 class="text-primary mb-2">当前在借</h6>
+<table class="table table-hover">
+    <thead><tr><th>书名</th><th>应还日期</th><th>逾期</th><th>状态</th><th>罚款</th><th></th><th></th></tr></thead>
+    <tbody>
+        @if (Model.BorrowingBooks != null && Model.BorrowingBooks.Count > 0)
+        {
+            foreach (var book in Model.BorrowingBooks)
+            {
+                <tr>
+                    <td>@book.BookTitle</td>
+                    <td>@book.DueDate.ToString("yyyy-MM-dd")</td>
+                    <td>@book.Delay.Days</td>
+                    <td><span class="badge @(book.Status != "正常" ? "bg-warning" : "bg-success")">@book.Status</span></td>
+                    <td>
+                        @if (book.Delay.Days > 0)
+                        {
+                            <span class="text-danger">@book.Fine</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">无罚款</span>
+                        }
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="Return" asp-route-recordId="@book.RecordId" asp-route-copyId="@book.CopyId" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">还书</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="GoToPayFine" asp-route-copyId="@book.CopyId" asp-route-Fine="@book.Fine" style="display:inline">
+							<button type="submit" class="btn btn-sm btn-outline-danger">去交付罚款</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5" class="text-center">暂无在借图书</td></tr>
+        }
+    </tbody>
+</table>

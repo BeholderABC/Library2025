@@ -1,0 +1,382 @@
+@* <style>
+  .hidden {
+    display: none;
+  }
+</style> *@
+<div id="notificationContainer" class="notification-container"></div>
+<div class="avatar-modal" id="avatarModal">
+  <div class="avatar-modal-content">
+    <button class="close-btn" onclick="closeAvatarModal()">×</button>
+    <img src="/api/Avatar/@Model.uid" alt="用户头像" id="modalAvatar">
+    
+    <!-- 上传区域 -->
+    <div class="upload-area" id="uploadArea">
+      <p>点击此处或拖拽图片文件上传新头像</p>
+      <p style="color: #666; font-size: 12px;">支持 JPG, PNG 等格式，建议尺寸 512x512px 及以上</p>
+    </div>
+    
+    <input type="file" id="fileInput" accept="image/*">
+    
+    <!-- 进度条 -->
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <!-- 裁剪容器 -->
+    <div class="crop-container" id="cropContainer">
+      <h4 style="text-align: center; margin-bottom: 15px">裁切头像</h4>
+      <div class="crop-area" id="cropArea">
+        <img class="crop-image" id="cropImage">
+        <div class="crop-overlay" id="cropOverlay">
+          <div class="resize-handle" id="resizeHandle"></div>
+        </div>
+      </div>
+      <div class="crop-controls">
+        <button class="btn primary" onclick="applyCrop()">确认</button>
+        <button class="btn secondary" onclick="cancelCrop()">取消</button>
+      </div>
+    </div>
+    
+    <div class="avatar-controls" id="avatarControls">
+      <button class="btn primary" onclick="changeAvatar()">更换头像</button>
+      <button class="btn success" onclick="saveAvatar()">保存头像</button>
+    </div>
+  </div>
+</div>
+<script src="/js/profile.js"></script>
+<script>
+  let currentImageData = null;
+  let cropData = { x: 50, y: 50, width: 100, height: 100 };
+  let isDragging = false;
+  let isResizing = false;
+  let startX = 0;
+  let startY = 0;
+  // 初始化
+  const avatarBtn = document.getElementById('avatarBtn');
+  const avatarControls = document.getElementById('avatarControls');
+  const avatarModal = document.getElementById('avatarModal');
+  const fileInput = document.getElementById('fileInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const cropContainer = document.getElementById('cropContainer');
+  const cropImage = document.getElementById('cropImage');
+  const cropOverlay = document.getElementById('cropOverlay');
+  const modalAvatar = document.getElementById('modalAvatar');
+  const resizeHandle = document.getElementById('resizeHandle');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  // 打开头像模态框
+  avatarBtn.addEventListener('click', () => {
+    avatarModal.style.display = 'flex';
+  });
+  // 关闭模态框
+  function closeAvatarModal() {
+    avatarModal.style.display = 'none';
+    resetCropState();
+  }
+  // 更换头像
+  function changeAvatar() {
+    fileInput.click();
+  }
+  // 文件上传处理
+  uploadArea.addEventListener('click', () => {
+    fileInput.click();
+  });
+  // 拖拽上传
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+  });
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('drag-over');
+  });
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleFileUpload(e.target.files[0]);
+
+      avatarControls.style.display = 'none';
+      modalAvatar.style.display = 'none';
+      uploadArea.style.display = 'none';
+    }
+  });
+  // 处理文件上传
+  function handleFileUpload(file) {
+    if (!file.type.startsWith('image/')) {
+      showError('操作失败', '请选择有效的图片文件！');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showError('操作失败', '图片文件不能超过5MB！');
+      return;
+    }
+    // showProgress();
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      currentImageData = e.target.result;
+      showCropInterface();
+      hideProgress();
+    };
+    reader.readAsDataURL(file);
+  }
+  // 显示进度条
+  function showProgress() {
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress > 90) progress = 90;
+      progressFill.style.width = progress + '%';
+      
+      if (progress >= 90) {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+  // 隐藏进度条
+  function hideProgress() {
+    progressFill.style.width = '100%';
+    setTimeout(() => {
+      progressBar.style.display = 'none';
+      progressFill.style.width = '0%';
+    }, 500);
+  }
+  // 显示裁剪界面
+  function showCropInterface() {
+    cropContainer.style.display = 'block';
+    cropImage.src = currentImageData;
+    
+    cropImage.onload = () => {
+      // 获取图片实际显示尺寸
+      const imgRect = cropImage.getBoundingClientRect();
+      const containerRect = cropImage.parentElement.getBoundingClientRect();
+
+      // 计算图片在容器中的实际位置
+      const imgLeft = imgRect.left - containerRect.left;
+      const imgTop = imgRect.top - containerRect.top;
+      const imgWidth = imgRect.width;
+      const imgHeight = imgRect.height;
+      
+      // 初始化裁剪框位置（居中正方形，基于图片实际显示区域）
+      const size = Math.min(imgWidth, imgHeight) * 0.6;
+      cropData.x = imgLeft + (imgWidth - size) / 2;
+      cropData.y = imgTop + (imgHeight - size) / 2;
+      cropData.width = size;
+      cropData.height = size;
+      
+      // 存储图片边界信息，用于限制拖拽
+      cropData.imgBounds = {
+        left: imgLeft,
+        top: imgTop,
+        right: imgLeft + imgWidth,
+        bottom: imgTop + imgHeight
+      };
+      
+      updateCropOverlay();
+    };
+  }
+  // 更新裁剪框位置
+  function updateCropOverlay() {
+    cropOverlay.style.left = cropData.x + 'px';
+    cropOverlay.style.top = cropData.y + 'px';
+    cropOverlay.style.width = cropData.width + 'px';
+    cropOverlay.style.height = cropData.height + 'px';
+  }
+  // 裁剪框拖拽事件
+  cropOverlay.addEventListener('mousedown', (e) => {
+    if (e.target === resizeHandle) {
+      isResizing = true;
+    } else {
+      isDragging = true;
+    }
+    startX = e.clientX;
+    startY = e.clientY;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      
+      // 限制拖拽在图片边界内
+      const newX = Math.max(cropData.imgBounds.left, 
+        Math.min(cropData.x + deltaX, cropData.imgBounds.right - cropData.width));
+      const newY = Math.max(cropData.imgBounds.top, 
+        Math.min(cropData.y + deltaY, cropData.imgBounds.bottom - cropData.height));
+      
+      cropData.x = newX;
+      cropData.y = newY;
+      
+      updateCropOverlay();
+      startX = e.clientX;
+      startY = e.clientY;
+    } else if (isResizing) {
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      const delta = Math.max(deltaX, deltaY);
+      
+      // 限制调整大小在图片边界内
+      const maxWidth = cropData.imgBounds.right - cropData.x;
+      const maxHeight = cropData.imgBounds.bottom - cropData.y;
+      const maxSize = Math.min(maxWidth, maxHeight);
+      
+      const newSize = Math.max(30, Math.min(cropData.width + delta, maxSize));
+      
+      cropData.width = newSize;
+      cropData.height = newSize;
+      
+      updateCropOverlay();
+      startX = e.clientX;
+      startY = e.clientY;
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    isResizing = false;
+  });
+  // 应用裁剪
+  function applyCrop() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // 设置画布尺寸为512x512（头像尺寸）
+    canvas.width = 512;
+    canvas.height = 512;
+    
+    const img = new Image();
+    img.onload = () => {
+      // Show a progress bar to indicate the upload is happening
+      showProgress(); 
+
+      // 获取图片实际显示尺寸和自然尺寸的比例
+      const imgRect = cropImage.getBoundingClientRect();
+      const scaleX = img.naturalWidth / imgRect.width;
+      const scaleY = img.naturalHeight / imgRect.height;
+      
+      // 计算裁剪区域在原图中的位置（相对于图片实际显示区域）
+      const cropX = (cropData.x - cropData.imgBounds.left) * scaleX;
+      const cropY = (cropData.y - cropData.imgBounds.top) * scaleY;
+      const cropWidth = cropData.width * scaleX;
+      const cropHeight = cropData.height * scaleY;
+      
+      // 裁剪并绘制到画布
+      ctx.drawImage(
+        img,
+        Math.max(0, cropX),
+        Math.max(0, cropY),
+        Math.min(cropWidth, img.naturalWidth - cropX),
+        Math.min(cropHeight, img.naturalHeight - cropY),
+        0, 0, 512, 512
+      );
+      
+      // 压缩并更新头像
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+      updateAvatarDisplay(croppedDataUrl);
+
+      // Save the cropped image to the server
+      saveAvatarToServer(croppedDataUrl)
+        .then(() => {
+          showSuccessMessage('头像上传成功！');
+          hideProgress();
+          closeAvatarModal();
+        })
+        .catch((error) => {
+          showError('上传失败', error.message);
+          hideProgress();
+        });
+
+      resetCropState();
+    };
+    img.src = currentImageData;
+  }
+  // 取消裁剪
+  function cancelCrop() {
+    resetCropState();
+  }
+  // 重置裁剪状态
+  function resetCropState() {
+    avatarControls.style.display = 'flex';
+    modalAvatar.style.display = 'block';
+    uploadArea.style.display = '';
+
+    cropContainer.style.display = 'none';
+    currentImageData = null;
+    fileInput.value = '';
+  }
+  // 更新头像显示
+  function updateAvatarDisplay(dataUrl) {
+    // Update the avatar in the modal
+    document.getElementById('modalAvatar').src = dataUrl;
+    // Also update the homepage avatar
+    const homepageImg = document.getElementById('avatarBtn').querySelector('img');
+    if (homepageImg) {
+      homepageImg.src = dataUrl;
+    }
+    currentImageData = dataUrl;
+  }
+  // 保存头像
+  function saveAvatar() {
+    const currentSrc = document.getElementById('modalAvatar').src;
+    
+    // Create a temporary link element
+    const link = document.createElement('a');
+    // Set the link's href to the image data
+    link.href = currentSrc;
+    // Set the download attribute with a file name
+    link.download = 'my-avatar.jpg';
+    // Programmatically click the link to trigger the download
+    link.click();
+    
+    showSuccessMessage('头像已保存到本地！');
+    closeAvatarModal();
+  }
+  // 上传头像到服务器
+  async function saveAvatarToServer(imageData) {
+    try {
+      // 将base64数据URL转换为Blob对象
+      // 创建FormData对象
+      const blob = await (await fetch(imageData)).blob();
+      const formData = new FormData();
+      formData.append("file", blob, "avatar.jpg"); 
+
+      const response = await fetch(`/api/Avatar/${@Model.uid}`, {
+        method: 'POST',
+        body: formData
+      });
+      if (!response.ok) {
+        throw new Error(`网络请求失败，状态码: ${response.status}`);
+      }
+      // 如果后端返回JSON数据，可以解析它
+      // const result = await response.json();
+      // return result;
+      // updateAvatarDisplay(`/api/Avatar/${@Model.uid}`);
+      return true;
+
+    } catch (error) {
+      showError('上传头像失败', '网络请求失败或服务器返回错误。')
+      throw error;
+    }
+  }
+  // // 点击模态框外部关闭
+  // avatarModal.addEventListener('click', (e) => {
+  //   if (e.target === avatarModal) {
+  //     closeAvatarModal();
+  //   }
+  // });
+  // ESC 键关闭模态框
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && avatarModal.style.display === 'flex') {
+      closeAvatarModal();
+    }
+  });
+</script>

@@ -1,0 +1,177 @@
+@page
+@model WebLibrary.Pages.Profile.ProfileModel
+@{
+  int pageSize = 10;
+  int totalBooks = Model.RecommendedBooks?.Count ?? 0;
+  int currentPage = 1;
+}
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>图书馆用户主页</title>
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+
+<body>
+  <!-- 图书馆用户主页包装在专用容器中 -->
+  <div class="library-profile-container">
+    <div class="wrap">
+      <!-- Cover area -->
+      <partial name="_SpaceCover" />
+
+      <!-- Main area - 全宽度布局 -->
+      <div class="main">
+        <div class="card">
+
+          <partial name="_SpaceNav" />
+
+          <div class="curated-list-container" id="bookGrid">
+            <!-- 图书卡片 -->
+            @if (totalBooks == 0)
+            {
+                <div class="empty">暂无推荐图书</div>
+            }
+            else
+            {
+              // 生成所有图书，但默认隐藏
+              for (int i = 0; i < totalBooks; i++)
+              {
+                var book = Model.RecommendedBooks[i];
+                <div class="book" data-index="@i" data-book-id="@book.BookID">
+                  <div class="book-cover">
+                    <img src="@book.CoverUrl" alt="@book.Title" class="book-cover-img" />
+                    @book.Title
+                    <div class="book-info">
+                      <div class="rating">
+                        <span class="star">★</span>
+                        <span>@string.Format("{0:0.0}", book.Rating)</span>
+                      </div>
+                      <div>@book.BorrowCount 借阅</div>
+                    </div>
+                  </div>
+                  <div class="bmeta">
+                    <div class="btitle">@book.Title</div>
+                    <div class="bauthor">@book.Author</div>
+                    <div class="bstats">
+                      <span>@book.CategoryName</span>
+                      @{
+                        var borrowState = 1;  // borrowDate + 图书余量 运算
+                        switch (borrowState)
+                        {
+                          case 1:
+                            <span style="color: #10b981;">可借阅</span>
+                            break;
+                          case 2:
+                            <span style="color: #ef4444;">已借完</span>
+                            break;
+                          case 3:
+                            <span style="color: #f59e0b;">预约中</span>
+                            break;
+                          case 4:
+                            <span style="color: #3b82f6;">借阅中</span>
+                            break;
+                          case 5:
+                            <span style="color: #ec4899;">已归还</span>
+                            break;
+                          default:
+                            <span style="color: #000000;">null</span>
+                            break;
+                        }
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+          <!-- 分页组件 -->
+          <!-- 分页按钮将由JavaScript动态生成 -->
+          @if (totalBooks > 0)
+          {
+            <div class="pagination" id="paginationContainer">
+            </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 头像查看弹窗 -->
+  <partial name="_SpaceAvatar" />
+
+<script src="/js/profile.js"></script>
+<script>
+  // 全局分页实例
+  let bookPagination;
+
+  // Book card functionality
+  document.querySelectorAll('.library-profile-container .book').forEach(book => {
+    book.addEventListener('click', () => {
+      const bookId = book.dataset.bookId;
+      const bookTitle = book.querySelector('.btitle')?.textContent;
+      window.location.href = `/Books/BookDetail?id=${bookId}`;
+    });
+    
+    book.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') book.click();
+    });
+  });
+  
+  // 初始化推荐页面
+  function initializeRecommend() {
+    const totalBooks = @totalBooks;
+    const pageSize = @pageSize;
+    const initialPage = @currentPage;
+    
+    if (totalBooks > 0) {
+      // 创建分页实例
+      bookPagination = new Pagination({
+        containerId: 'paginationContainer',
+        itemsSelector: '.library-profile-container .book',
+        pageSize: pageSize,
+        totalItems: totalBooks,
+        pagedContainer: 'bookGrid',
+        initialPage: initialPage,
+        pageParam: 'page',
+        onPageChange: function(page, pagination) {
+          console.log(`页码已切换到: ${page}`);
+          // 在这里添加页码改变时的自定义逻辑
+          const url = new URL(window.location);
+          url.searchParams.set('tab', 'recommend');
+          url.searchParams.set('page', page);
+          window.history.pushState({}, '', url);
+        },
+        onInitialize: function(pagination) {
+          console.log('分页组件初始化完成', pagination.getStatus());
+        }
+      });
+    }
+  }
+
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', initializeRecommend);
+
+  // // 如果需要动态更新图书数量，可以使用以下方法：
+  // function updateBookList(newBooks) {
+  //   // 假设这是从服务器获取的新图书数据
+  //   // 更新DOM中的图书列表...
+    
+  //   // 更新分页组件
+  //   if (bookPagination) {
+  //     bookPagination.updateTotalItems(newBooks.length);
+  //   }
+  // }
+
+  // 页面卸载时清理资源
+  window.addEventListener('beforeunload', () => {
+    if (bookPagination) {
+      bookPagination.destroy();
+    }
+  });
+</script>
+</body>
+</html>

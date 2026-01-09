@@ -1,0 +1,203 @@
+
+<div class="tabs" id="tabs">
+  <a class="tab active" href="/profile/recommend" data-page="recommend">为您推荐</a>
+  <a class="tab" href="/profile/history" data-page="history">借阅历史</a>
+  <a class="tab" href="/profile/reviews" data-page="reviews">我的书评</a>
+  <a class="tab" href="/profile/info" data-page="info">个人信息</a>
+  <div class="tab-indicator" id="tabIndicator"></div>
+</div>
+<script>
+  class TabIndicator {
+    constructor() {
+      this.tabs = document.getElementById('tabs');
+      this.indicator = document.getElementById('tabIndicator');
+      this.tabElements = this.tabs.querySelectorAll('.tab');
+      this.isAnimating = false;
+      
+      this.init();
+    }
+    init() {
+      // 检查是否从其他页面跳转过来
+      const previousTab = sessionStorage.getItem('previousActiveTab');
+      
+      if (previousTab !== null) {
+        // 从其他页面跳转过来，执行动画
+        this.handlePageTransition(parseInt(previousTab));
+      } else {
+        // 直接访问页面，直接显示指示器
+        const activeIndex = this.setActiveFromURL();
+        this.updateIndicatorPosition(activeIndex);
+      }
+      
+      // 绑定点击事件
+      this.tabElements.forEach((tab, index) => {
+        tab.addEventListener('click', (e) => {
+          this.handleTabClick(e, index);
+        });
+      });
+      // 监听浏览器前进后退
+      window.addEventListener('popstate', () => {
+        this.setActiveFromURL();
+      });
+    }
+    handleTabClick(event, targetIndex) {
+      if (this.isAnimating) return;
+      const currentActive = document.querySelector('.tab.active');
+      const currentIndex = Array.from(this.tabElements).indexOf(currentActive);
+      
+      // 如果点击的是当前激活的标签，允许正常跳转
+      if (currentIndex === targetIndex) return;
+      // 存储当前激活标签的索引
+      sessionStorage.setItem('previousActiveTab', currentIndex.toString());
+      
+      // 允许正常跳转，不阻止默认行为
+      // 页面跳转将由浏览器处理
+    }
+    handlePageTransition(previousIndex) {
+      // 页面已经切换，现在执行动画
+      const currentIndex = this.setActiveFromURL();
+      
+      // 先将指示器设置到之前的位置
+      this.updateIndicatorPosition(previousIndex);
+      
+      // 延迟一下再开始动画，确保页面渲染完成
+      setTimeout(() => {
+        this.executeTransitionAnimation(previousIndex, currentIndex);
+      }, 50);
+    }
+    executeTransitionAnimation(fromIndex, toIndex) {
+      this.isAnimating = true;
+      
+      // 第一阶段：收缩到当前标签（之前标签）的中心
+      this.shrinkToTabCenter(fromIndex, () => {
+        // 第二阶段：从新标签的中心展开
+        this.expandFromTabCenter(toIndex, () => {
+          this.isAnimating = false;
+          // 清除存储的前一个标签信息
+          sessionStorage.removeItem('previousActiveTab');
+        });
+      });
+      
+      // 更新内容
+      this.updateContent(toIndex);
+    }
+    shrinkToTabCenter(tabIndex, callback) {
+      const tab = this.tabElements[tabIndex];
+      const tabsRect = this.tabs.getBoundingClientRect();
+      const tabRect = tab.getBoundingClientRect();
+      
+      // 计算标签的中心位置
+      const centerX = tabRect.left - tabsRect.left + tabRect.width / 2;
+      
+      this.indicator.classList.add('shrinking');
+      
+      // 同时改变位置和宽度，收缩到标签中心
+      this.indicator.style.left = `${centerX}px`;
+      this.indicator.style.width = '0px';
+      this.indicator.style.transform = 'translateX(-50%)';
+      
+      setTimeout(() => {
+        this.indicator.classList.remove('shrinking');
+        this.indicator.style.transform = '';
+        callback();
+      }, 200);
+    }
+    expandFromTabCenter(tabIndex, callback) {
+      const tab = this.tabElements[tabIndex];
+      const tabsRect = this.tabs.getBoundingClientRect();
+      const tabRect = tab.getBoundingClientRect();
+      
+      // 计算新标签的中心和完整尺寸
+      const centerX = tabRect.left - tabsRect.left + tabRect.width / 2;
+      const fullLeft = tabRect.left - tabsRect.left;
+      const fullWidth = tabRect.width;
+      
+      // 从新标签的中心开始（宽度为0）
+      this.indicator.style.left = `${centerX}px`;
+      this.indicator.style.width = '0px';
+      this.indicator.style.transform = 'translateX(-50%)';
+      
+      this.indicator.classList.add('expanding');
+      
+      // 展开到完整宽度
+      setTimeout(() => {
+        this.indicator.style.left = `${fullLeft}px`;
+        this.indicator.style.width = `${fullWidth}px`;
+        this.indicator.style.transform = '';
+      }, 20);
+      
+      setTimeout(() => {
+        this.indicator.classList.remove('expanding');
+        callback();
+      }, 300);
+    }
+    setActiveFromURL() {
+      const currentPath = window.location.pathname;
+      let activeIndex = 0;
+      this.tabElements.forEach((tab, index) => {
+        const tabUrl = new URL(tab.href, window.location.origin);
+        if (tabUrl.pathname === currentPath) {
+          activeIndex = index;
+        }
+        tab.classList.remove('active');
+      });
+      this.tabElements[activeIndex].classList.add('active');
+      return activeIndex;
+    }
+    updateIndicatorPosition(index) {
+      const targetTab = this.tabElements[index];
+      if (!targetTab) return;
+      
+      const tabsRect = this.tabs.getBoundingClientRect();
+      const targetRect = targetTab.getBoundingClientRect();
+      
+      const left = targetRect.left - tabsRect.left;
+      const width = targetRect.width;
+      
+      this.indicator.style.left = `${left}px`;
+      this.indicator.style.width = `${width}px`;
+    }
+    updateContent(index) {
+      const targetPage = this.tabElements[index].dataset.page;
+      const contentItems = document.querySelectorAll('.content-item');
+      
+      contentItems.forEach((item) => {
+        item.classList.remove('active');
+      });
+      
+      setTimeout(() => {
+        const targetContent = document.getElementById(targetPage);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+      }, 150);
+    }
+  }
+  // 初始化
+  document.addEventListener('DOMContentLoaded', () => {
+    new TabIndicator();
+  });
+  // 窗口大小改变时重新计算位置
+  window.addEventListener('resize', () => {
+    const activeIndex = Array.from(document.querySelectorAll('.tab')).findIndex(tab => 
+      tab.classList.contains('active')
+    );
+    if (activeIndex !== -1) {
+      const indicator = document.getElementById('tabIndicator');
+      const tabElements = document.querySelectorAll('.tab');
+      const targetTab = tabElements[activeIndex];
+      const tabs = document.getElementById('tabs');
+      
+      if (targetTab && tabs && indicator) {
+        const tabsRect = tabs.getBoundingClientRect();
+        const targetRect = targetTab.getBoundingClientRect();
+        
+        const left = targetRect.left - tabsRect.left;
+        const width = targetRect.width;
+        
+        indicator.style.left = `${left}px`;
+        indicator.style.width = `${width}px`;
+      }
+    }
+  });
+</script>

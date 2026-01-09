@@ -1,0 +1,37 @@
+@model WebLibrary.Pages.Profile.ProfileModel
+
+<div class="cover" role="banner" aria-label="个人封面">
+  <div class="mask" aria-hidden="true"></div>
+  <div class="profile-row">
+    <div class="avatar" id="avatarBtn" aria-hidden="false">
+      <img src="/api/Avatar/@Model.uid" alt="用户头像">
+    </div>
+    <div class="meta">
+      <div>
+        <!-- <div class="name">@Model.UserInfo.UserName <span class="vip">VIP</span></div> -->
+        <div class="name">@Model.UserInfo.UserName</div>
+        <!-- <div class="sub">个性签名：热爱阅读，分享知识 · 文学爱好者</div> -->
+      </div>
+        
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="stats" aria-hidden="false">
+          <div><span class="stat-num">@Model.UserBorrowCount</span><span class="sub">借阅量</span></div>
+          <div><span class="stat-num">@Model.UserCommentCount</span><span class="sub">书评数</span></div>
+          <div><span class="stat-num">@Model.UserInfo.CreditScore</span><span class="sub">信誉分</span></div>
+        </div>
+        <!-- <div class="actions">
+          <button class="btn" id="backgroundBtn">更改空间背景</button>
+          <button class="btn ghost">发私信</button>
+        </div> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Background button
+  const backgroundBtn = document.getElementById('backgroundBtn');
+  backgroundBtn.addEventListener('click', () => {
+    alert('即将跳转到空间背景设置页面');
+  });
+</script>

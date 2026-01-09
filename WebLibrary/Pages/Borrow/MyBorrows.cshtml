@@ -1,0 +1,175 @@
+﻿@page
+@model WebLibrary.Pages.Borrow.MyBorrowsModel
+@{
+    ViewData["Title"] = "我的借阅";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-book me-2"></i>我的借阅</h2>
+
+    <!-- 操作结果消息 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+    }
+
+    @if (Model.BorrowRecords.Any())
+    {
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>图书信息</th>
+                                    <th>副本编号</th>
+                                    <th>借阅日期</th>
+                                    <th>应还日期</th>
+                                    <th>状态</th>
+                                    <th>续借次数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var record in Model.BorrowRecords)
+                            {
+                                        <tr class="@(record.IsOverdue ? "table-danger" : "")">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-light rounded p-2 me-3">
+                                                        <i class="bi bi-book fs-3 text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">@record.BookTitle</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@record.CopyId</td>
+                                            <td>@record.BorrowDate.ToString("yyyy-MM-dd")</td>
+                                            <td class="fw-bold @(record.IsOverdue ? "text-danger" : "")">
+                                        @record.DueDate.ToString("yyyy-MM-dd")
+                                        @if (record.IsOverdue)
+                                        {
+                                                        <span class="badge bg-danger ms-2">逾期</span>
+                                        }
+                                            </td>
+                                            <td>
+                                        @switch (record.Status)
+                                        {
+                                            case "lending":
+                                                                <span class="badge bg-primary">借阅中</span>
+                                                break;
+                                            case "overdue":
+                                                                <span class="badge bg-danger">逾期</span>
+                                                break;
+                                            case "returned":
+                                                                <span class="badge bg-success">已归还</span>
+                                                break;
+                                            case "overdue_returned":
+                                                                <span class="badge bg-warning">逾期归还</span>
+                                                break;
+                                        }
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span>@record.RenewTimes / 2</span>
+                                            @if (record.RenewTimes > 0)
+                                            {
+                                                            <span class="ms-1 text-success">
+                                                                <i class="bi bi-check-circle"></i>
+                                                            </span>
+                                            }
+                                                </div>
+                                            </td>
+                                            <td>
+                                        @if (record.CanRenew)
+                                        {
+                                                        <form method="post" asp-page-handler="RenewBook">
+                                                            <input type="hidden" name="recordId" value="@record.RecordId" />
+                                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                                <i class="bi bi-arrow-repeat me-1"></i> 续借
+                                                            </button>
+                                                        </form>
+                                        }
+                                        else if (record.IsOverdue)
+                                        {
+                                                        <div class="d-flex flex-column">
+                                                            <button class="btn btn-sm btn-outline-danger" disabled>
+                                                                <i class="bi bi-exclamation-triangle me-1"></i> 逾期
+                                                            </button>
+                                                            <p class="small text-muted mt-1 mb-0">
+                                                                请携带图书至服务台处理<br> 
+                                                            </p>
+                                                        </div>
+                                        }
+                                        else
+                                        {
+                                                        <div class="d-flex flex-column">
+                                                            <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                                <i class="bi bi-arrow-repeat me-1"></i> 续借
+                                                            </button>
+                                                            <span class="small text-muted mt-1">@record.RenewMessage</span>
+                                                        </div>
+                                        }
+                                            </td>
+                                        </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    共 <strong>@Model.BorrowRecords.Count</strong> 条借阅记录
+                </div>
+                <div>
+                    <a href="/Books" class="btn btn-outline-primary">
+                        <i class="bi bi-search me-1"></i> 继续借阅
+                    </a>
+                </div>
+            </div>
+    }
+    else
+    {
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">您当前没有借阅记录</h4>
+                    <p class="text-muted mb-4">快去图书馆发现您感兴趣的图书吧</p>
+                    <a href="/Books" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> 浏览图书
+                    </a>
+                </div>
+            </div>
+    }
+
+    <!-- 逾期处理说明 -->
+    @if (Model.BorrowRecords.Any(r => r.IsOverdue))
+    {
+            <div class="card border-danger mt-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-octagon me-2"></i>逾期图书处理说明</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li>请携带逾期图书至图书馆前台办理归还手续</li>
+                        <li>根据逾期天数缴纳相应罚款</li>
+                        <li>完成处理后，管理员会更新您的借阅状态</li>
+                        <li>如需帮助，请联系图书馆</li>
+                    </ol>
+                </div>
+            </div>
+    }
+</div>

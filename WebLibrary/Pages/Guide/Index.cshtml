@@ -1,0 +1,118 @@
+@page
+@model WebLibrary.Pages.Guide.IndexModel
+@{
+    ViewData["Title"] = "指南";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="bi bi-info-circle"></i> 图书馆指南
+            </h2>
+            <p class="text-center text-muted mb-5">欢迎使用图书馆服务，请选择您需要的指南信息</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="row g-4">
+                <!-- 读者须知 -->
+                <div class="col-md-6">
+                    <a href="/Guide/ReaderNotice" class="text-decoration-none">
+                        <div class="card h-100 guide-card">
+                            <div class="card-body text-center">
+                                <div class="guide-icon mb-3">
+                                    <i class="bi bi-person-check"></i>
+                                </div>
+                                <h5 class="card-title">读者须知</h5>
+                                <p class="card-text text-muted">了解图书馆基本规则和读者权益</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 智慧导览服务 -->
+                <div class="col-md-6">
+                    <a href="/Guide/SmartGuide" class="text-decoration-none">
+                        <div class="card h-100 guide-card">
+                            <div class="card-body text-center">
+                                <div class="guide-icon mb-3">
+                                    <i class="bi bi-robot"></i>
+                                </div>
+                                <h5 class="card-title">智慧导览服务</h5>
+                                <p class="card-text text-muted">智能导航和自助服务指南</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 借阅须知 -->
+                <div class="col-md-6">
+                    <a href="/Guide/BorrowNotice" class="text-decoration-none">
+                        <div class="card h-100 guide-card">
+                            <div class="card-body text-center">
+                                <div class="guide-icon mb-3">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                <h5 class="card-title">借阅须知</h5>
+                                <p class="card-text text-muted">借阅规则、期限和注意事项</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 交通指南 -->
+                <div class="col-md-6">
+                    <a href="/Guide/Transportation" class="text-decoration-none">
+                        <div class="card h-100 guide-card">
+                            <div class="card-body text-center">
+                                <div class="guide-icon mb-3">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+                                <h5 class="card-title">交通指南</h5>
+                                <p class="card-text text-muted">图书馆位置和交通路线</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .guide-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .guide-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        border-color: #007bff;
+    }
+
+    .guide-icon {
+        font-size: 3rem;
+        color: #007bff;
+    }
+
+    .guide-card:hover .guide-icon {
+        color: #0056b3;
+    }
+
+    .card-title {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+    }
+</style>
+
+ 

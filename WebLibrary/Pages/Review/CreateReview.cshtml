@@ -1,0 +1,287 @@
+﻿@page
+@model WebLibrary.Pages.Review.CreateReviewModel
+@{
+    ViewData["Title"] = "写书评";
+    Layout = "_Layout"; 
+}
+
+<style>
+    .review-container {
+        max-width: 800px;
+        margin: 1rem auto; 
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    .review-header {
+        background: linear-gradient(135deg, #3494e6, #3457D5);
+        color: white;
+        padding: 1.5rem; 
+        text-align: center;
+    }
+    .review-form {
+        padding: 1.5rem; 
+    }
+    .book-search-container {
+        position: relative;
+    }
+    .suggestions-box {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        display: none;
+    }
+    .rating-stars {
+        display: flex;
+        justify-content: flex-start; 
+        margin: 1rem 0; 
+        gap: 0.5rem;
+    }
+    .rating-star {
+        font-size: 1.5rem; 
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s, transform 0.2s;
+    }
+    .rating-star:hover,
+    .rating-star.active {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
+    .char-count {
+        text-align: right;
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #3494e6, #3457D5);
+        border: none;
+        padding: 0.5rem 1.5rem; 
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 0.9rem; 
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(52, 87, 213, 0.3);
+    }
+    .btn-outline-secondary {
+        padding: 0.5rem 1.5rem; 
+        font-size: 0.9rem; 
+    }
+    .book-card {
+        border-left: 4px solid #3457D5;
+        background-color: #f8f9fa;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #345;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #3457D5;
+        box-shadow: 0 0 0 0.25rem rgba(52, 87, 213, 0.25);
+    }
+</style>
+
+<div class="review-container">
+    <div class="review-header">
+        <h1><i class="bi bi-pencil-square me-2"></i>发表书评</h1>
+        <p class="mb-0">分享您对图书的看法，帮助其他读者选择好书</p>
+    </div>
+
+    <div class="review-form">
+        <form method="post">
+            <!-- 图书选择 -->
+            <div class="mb-3">
+                <label asp-for="Input.BookTitle" class="form-label">选择图书</label>
+                <div class="book-search-container">
+                    <input asp-for="Input.BookTitle" class="form-control form-control-lg" type="text" 
+                           id="bookTitleInput" placeholder="搜索图书名称...">
+                    <span asp-validation-for="Input.BookTitle" class="text-danger"></span>
+                    <div id="bookSuggestions" class="suggestions-box"></div>
+                </div>
+            </div>
+            
+            <!-- 隐藏的图书ID字段 -->
+            <input asp-for="Input.BookId" type="hidden" id="bookIdInput">
+            
+            <!-- 选中的图书信息 -->
+            <div id="selectedBookCard" class="card book-card p-3 mb-3" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 id="selectedBookTitle" class="card-title mb-1"></h5>
+                        <p id="selectedBookAuthor" class="card-text text-muted mb-0"></p>
+                    </div>
+                    <button type="button" id="clearSelection" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-x"></i> 更换图书
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 评分 -->
+            <div class="mb-3">
+                <label asp-for="Input.Rating" class="form-label">评分</label>
+                <div class="rating-stars">
+                    <i class="bi bi-star rating-star" data-value="1"></i>
+                    <i class="bi bi-star rating-star" data-value="2"></i>
+                    <i class="bi bi-star rating-star" data-value="3"></i>
+                    <i class="bi bi-star rating-star" data-value="4"></i>
+                    <i class="bi bi-star rating-star" data-value="5"></i>
+                </div>
+                <input asp-for="Input.Rating" type="hidden" id="ratingInput" value="3">
+                <span asp-validation-for="Input.Rating" class="text-danger d-block text-start"></span> <!-- 改为左对齐 -->
+            </div>
+            
+            <!-- 评论内容 -->
+            <div class="mb-3">
+                <label asp-for="Input.Content" class="form-label">评论内容</label>
+                <textarea asp-for="Input.Content" class="form-control" rows="5" 
+                          placeholder="请分享您对这本书的看法..." id="contentInput"></textarea>
+                <div class="char-count"><span id="charCount">0</span>/500</div>
+                <span asp-validation-for="Input.Content" class="text-danger"></span>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-page="/Review/Index" class="btn btn-outline-secondary me-md-2"> 
+                    <i class="bi bi-arrow-left"></i> 返回列表
+                </a>
+                <button type="submit" class="btn btn-submit"> 
+                    <i class="bi bi-check2"></i> 提交评论
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // 初始化评分星标
+            setRating(3);
+            
+            // 如果有预选的书籍信息，自动填充
+            var preSelectedBookId = '@(Model.BookId)';
+            var preSelectedBookTitle = '@Html.Raw(Model.BookTitle)';
+            var preSelectedBookAuthor = '@Html.Raw(Model.BookAuthor)';
+            
+            if (preSelectedBookId && preSelectedBookId !== '0' && preSelectedBookTitle) {
+                $('#bookTitleInput').val(preSelectedBookTitle);
+                $('#bookIdInput').val(preSelectedBookId);
+                $('#selectedBookTitle').text(preSelectedBookTitle);
+                $('#selectedBookAuthor').text('作者: ' + (preSelectedBookAuthor || '未知作者'));
+                $('#selectedBookCard').show();
+                $('#bookTitleInput').hide();
+                $('label[for="Input.BookTitle"]').text("已选图书");
+            }
+            
+            // 图书搜索功能
+            $('#bookTitleInput').on('input', function() {
+                var query = $(this).val();
+                if (query.length > 1) {
+                    $.get('/Review/CreateReview?handler=BookSearch&query=' + encodeURIComponent(query), function(data) {
+                        var suggestions = $('#bookSuggestions');
+                        suggestions.empty();
+                        
+                        if (data.length > 0) {
+                            data.forEach(function(book) {
+                                suggestions.append(
+                                    `<div class="list-group-item list-group-item-action suggestion-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">${book.title}</h6>
+                                            <small class="text-muted">ID: ${book.bookId}</small>
+                                        </div>
+                                        <p class="mb-1">${book.author || '未知作者'}</p>
+                                    </div>`
+                                );
+                            });
+                            suggestions.show();
+                        } else {
+                            suggestions.append(
+                                `<div class="list-group-item text-center text-muted">
+                                    未找到相关图书
+                                </div>`
+                            );
+                            suggestions.show();
+                        }
+                    });
+                } else {
+                    $('#bookSuggestions').hide();
+                }
+            });
+            
+            // 选择图书
+            $(document).on('click', '.suggestion-item', function() {
+                var title = $(this).find('h6').text();
+                var bookId = $(this).find('small').text().replace('ID: ', '');
+                var author = $(this).find('p').text();
+                
+                $('#bookTitleInput').val(title);
+                $('#bookIdInput').val(bookId);
+                $('#selectedBookTitle').text(title);
+                $('#selectedBookAuthor').text('作者: ' + author);
+                $('#selectedBookCard').show();
+                $('#bookSuggestions').hide();
+                $('#bookTitleInput').hide();
+                $('label[for="Input.BookTitle"]').text("已选图书");
+            });
+            
+            // 清除选择
+            $('#clearSelection').on('click', function() {
+                $('#bookTitleInput').val('').show();
+                $('#bookIdInput').val('');
+                $('#selectedBookCard').hide();
+                $('label[for="Input.BookTitle"]').text("选择图书");
+                $('#bookTitleInput').focus();
+            });
+            
+            // 评分星标功能
+            $('.rating-star').on('click', function() {
+                var rating = $(this).data('value');
+                setRating(rating);
+            });
+            
+            // 字符计数
+            $('#contentInput').on('input', function() {
+                var length = $(this).val().length;
+                $('#charCount').text(length);
+                
+                if (length > 500) {
+                    $('#charCount').addClass('text-danger');
+                } else {
+                    $('#charCount').removeClass('text-danger');
+                }
+            });
+            
+            // 点击外部隐藏建议框
+            $(document).click(function(e) {
+                if (!$(e.target).closest('.book-search-container').length) {
+                    $('#bookSuggestions').hide();
+                }
+            });
+            
+            function setRating(rating) {
+                $('.rating-star').each(function() {
+                    if ($(this).data('value') <= rating) {
+                        $(this).addClass('active');
+                        $(this).removeClass('bi-star').addClass('bi-star-fill');
+                    } else {
+                        $(this).removeClass('active');
+                        $(this).removeClass('bi-star-fill').addClass('bi-star');
+                    }
+                });
+                $('#ratingInput').val(rating);
+            }
+        });
+    </script>
+}

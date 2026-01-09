@@ -1,0 +1,201 @@
+@page
+@model WebLibrary.Pages.Review.EditReviewModel
+@{
+    ViewData["Title"] = "编辑评论";
+    Layout = "_Layout"; // 确保使用正确的布局
+}
+
+<style>
+    .review-container {
+        max-width: 800px;
+        margin: 1rem auto; /* 减小了上下间距 */
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    .review-header {
+        background: linear-gradient(135deg, #3494e6, #3457D5);
+        color: white;
+        padding: 1.5rem; /* 减小了内边距 */
+        text-align: center;
+    }
+    .review-form {
+        padding: 1.5rem; /* 减小了内边距 */
+    }
+    .book-search-container {
+        position: relative;
+    }
+    .suggestions-box {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        display: none;
+    }
+    .rating-stars {
+        display: flex;
+        justify-content: flex-start; /* 改为左对齐 */
+        margin: 1rem 0; /* 减小了上下间距 */
+        gap: 0.5rem;
+    }
+    .rating-star {
+        font-size: 1.5rem; /* 缩小星星大小 */
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s, transform 0.2s;
+    }
+    .rating-star:hover,
+    .rating-star.active {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
+    .char-count {
+        text-align: right;
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #3494e6, #3457D5);
+        border: none;
+        padding: 0.5rem 1.5rem; /* 缩小按钮大小 */
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 0.9rem; /* 缩小按钮文字 */
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(52, 87, 213, 0.3);
+    }
+    .btn-outline-secondary {
+        padding: 0.5rem 1.5rem; /* 缩小按钮大小 */
+        font-size: 0.9rem; /* 缩小按钮文字 */
+    }
+    .book-card {
+        border-left: 4px solid #3457D5;
+        background-color: #f8f9fa;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #345;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #3457D5;
+        box-shadow: 0 0 0 0.25rem rgba(52, 87, 213, 0.25);
+    }
+</style>
+
+<div class="review-container">
+    <div class="review-header">
+        <h1><i class="bi bi-pencil-square me-2"></i>编辑书评</h1>
+        <p class="mb-0">修改您对图书的看法，帮助其他读者选择好书</p>
+    </div>
+
+    <div class="review-form">
+        <form method="post">
+            <input type="hidden" asp-for="Input.CommentId" />
+            <input type="hidden" asp-for="Input.BookId" id="bookIdInput" />
+            
+            <!-- 图书选择 -->
+            <div class="mb-3">
+                <label class="form-label">已选图书</label>
+                <div class="book-search-container">
+                    <input class="form-control form-control-lg" type="text" 
+                           value="@Model.BookTitle" readonly>
+                </div>
+            </div>
+            
+            <!-- 选中的图书信息 -->
+            <div id="selectedBookCard" class="card book-card p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 id="selectedBookTitle" class="card-title mb-1">@Model.BookTitle</h5>
+                        <p id="selectedBookAuthor" class="card-text text-muted mb-0">作者: @Model.Author</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 评分 -->
+            <div class="mb-3">
+                <label asp-for="Input.Rating" class="form-label">评分</label>
+                <div class="rating-stars">
+                    <i class="bi bi-star rating-star" data-value="1"></i>
+                    <i class="bi bi-star rating-star" data-value="2"></i>
+                    <i class="bi bi-star rating-star" data-value="3"></i>
+                    <i class="bi bi-star rating-star" data-value="4"></i>
+                    <i class="bi bi-star rating-star" data-value="5"></i>
+                </div>
+                <input asp-for="Input.Rating" type="hidden" id="ratingInput" value="@Model.Input.Rating">
+                <span asp-validation-for="Input.Rating" class="text-danger d-block text-start"></span> <!-- 改为左对齐 -->
+            </div>
+            
+            <!-- 评论内容 -->
+            <div class="mb-3">
+                <label asp-for="Input.Content" class="form-label">评论内容</label>
+                <textarea asp-for="Input.Content" class="form-control" rows="5" 
+                          placeholder="请分享您对这本书的看法..." id="contentInput">@Model.Input.Content</textarea>
+                <div class="char-count"><span id="charCount">@(Model.Input.Content?.Length ?? 0)</span>/500</div>
+                <span asp-validation-for="Input.Content" class="text-danger"></span>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-page="/Review/MyReviews" class="btn btn-outline-secondary me-md-2"> <!-- 移除了btn-lg -->
+                    <i class="bi bi-arrow-left"></i> 返回我的评论
+                </a>
+                <button type="submit" class="btn btn-submit"> <!-- 移除了btn-lg -->
+                    <i class="bi bi-check2"></i> 保存修改
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // 初始化评分星标
+            var initialRating = $('#ratingInput').val() || 3;
+            setRating(initialRating);
+            
+            // 评分星标功能
+            $('.rating-star').on('click', function() {
+                var rating = $(this).data('value');
+                setRating(rating);
+            });
+            
+            // 字符计数
+            $('#contentInput').on('input', function() {
+                var length = $(this).val().length;
+                $('#charCount').text(length);
+                
+                if (length > 500) {
+                    $('#charCount').addClass('text-danger');
+                } else {
+                    $('#charCount').removeClass('text-danger');
+                }
+            });
+            
+            function setRating(rating) {
+                $('.rating-star').each(function() {
+                    if ($(this).data('value') <= rating) {
+                        $(this).addClass('active');
+                        $(this).removeClass('bi-star').addClass('bi-star-fill');
+                    } else {
+                        $(this).removeClass('active');
+                        $(this).removeClass('bi-star-fill').addClass('bi-star');
+                    }
+                });
+                $('#ratingInput').val(rating);
+            }
+        });
+    </script>
+}

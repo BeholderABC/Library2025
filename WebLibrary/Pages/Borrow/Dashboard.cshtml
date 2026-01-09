@@ -1,0 +1,55 @@
+﻿@page
+@model WebLibrary.Pages.Borrow.DashboardModel
+@{
+    ViewData["Title"] = "借阅服务";
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><a asp-page="/Borrow/BorrowBook" class="btn btn-primary w-100 py-4">借书</a></div>
+    <div class="col-6 col-md-3"><a asp-page="/Borrow/Renew" class="btn btn-primary w-100 py-4">续借</a></div>
+    <div class="col-6 col-md-3"><a asp-page="/Borrow/Reservation" class="btn btn-primary w-100 py-4">我的预约</a></div>
+    <div class="col-6 col-md-3"><a asp-page="/Borrow/History" class="btn btn-primary w-100 py-4">借阅记录</a></div>
+</div>
+
+<h6 class="text-primary mb-2">当前在借（即将到期提醒）</h6>
+<table class="table table-hover">
+    <thead><tr><th>书名</th><th>应还日期</th><th>状态</th><th></th></tr></thead>
+    <tbody>
+    @if (Model.BorrowingBooks != null && Model.BorrowingBooks.Count > 0)
+    {
+        foreach (var book in Model.BorrowingBooks)
+        {
+            <tr>
+                <td>@book.BookTitle</td>
+                <td>@book.DueDate.ToString("yyyy-MM-dd")</td>
+                    <td><span class="badge @(book.Status != "正常" ? "bg-warning" : "bg-success")">@book.Status</span></td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        <button type="submit" asp-page-handler="ReturnBook" class="btn btn-sm btn-outline-primary">去还书</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr><td colspan="4" class="text-center">暂无在借图书</td></tr>
+    }
+    </tbody>
+</table>
