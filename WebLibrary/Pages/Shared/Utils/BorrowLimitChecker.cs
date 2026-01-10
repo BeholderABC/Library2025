@@ -63,34 +63,13 @@ namespace WebLibrary.Pages.Shared.Utils
 
             // 4. 获取用户角色的基础借阅规则
             int baseMaxBooks = 3; // 默认值
-            using (var cmd = new OracleCommand("SELECT MAX_BOOKS FROM BORROW_RULES WHERE ROLE_NAME = :role", conn))
-            {
-                cmd.Parameters.Add("role", userRole);
-                var result = cmd.ExecuteScalar();
-                if (result != null)
-                {
-                    baseMaxBooks = Convert.ToInt32(result);
-                }
-            }
+            
 
             // 5. 根据信用分调整最大借书数量
             int bonusThreshold = 80, bonusBooks = 0;
             int penaltyThreshold = 40, penaltyBooks = 0;
             
-            using (var cmd = new OracleCommand(@"
-                SELECT BONUS_THRESHOLD, BONUS_BOOKS, PENALTY_THRESHOLD, PENALTY_BOOKS 
-                FROM CREDIT_RULES 
-                WHERE RULE_ID = (SELECT MIN(RULE_ID) FROM CREDIT_RULES)", conn))
-            {
-                using var reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    bonusThreshold = reader.GetInt32(0);
-                    bonusBooks = reader.GetInt32(1);
-                    penaltyThreshold = reader.GetInt32(2);
-                    penaltyBooks = reader.GetInt32(3);
-                }
-            }
+            
 
             int adjustedMaxBooks = baseMaxBooks;
             

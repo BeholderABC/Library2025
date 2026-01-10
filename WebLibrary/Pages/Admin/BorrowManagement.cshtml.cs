@@ -66,14 +66,14 @@ using System.Text;
 
 //                // 生成新的 RECORD_ID（测试用，无序列）
 //                int newId;
-//                using (var cmd1 = new OracleCommand("SELECT NVL(MAX(RECORD_ID), 0) + 1 FROM ADMINISTRATOR.BORROWRECORD", conn))
+//                using (var cmd1 = new OracleCommand("SELECT NVL(MAX(RECORD_ID), 0) + 1 FROM BORROWRECORD", conn))
 //                {
 //                    newId = Convert.ToInt32(cmd1.ExecuteScalar());
 //                }
 
 //                using var cmd = conn.CreateCommand();
 //                cmd.CommandText = @"
-//            INSERT INTO ADMINISTRATOR.BORROWRECORD 
+//            INSERT INTO BORROWRECORD 
 //            (RECORD_ID, USER_ID, COPY_ID, BORROW_DATE, DUE_DATE, STATUS, RENEW_TIMES, RETURN_DATE, LAST_FINED_DATE)
 //            VALUES (:record_id, :user_id, :copy_id, :borrow_date, :due_date, 'overdue', 0, NULL, NULL)";
 
@@ -122,7 +122,7 @@ using System.Text;
 //            conn.Open();
 
 //            using var cmd = conn.CreateCommand();
-//            cmd.CommandText = "DELETE FROM ADMINISTRATOR.BORROWRECORD WHERE RECORD_ID = :id";
+//            cmd.CommandText = "DELETE FROM BORROWRECORD WHERE RECORD_ID = :id";
 //            cmd.Parameters.Add("id", id);
 //            cmd.ExecuteNonQuery();
 
@@ -142,7 +142,7 @@ using System.Text;
 //            using (var cmd = conn.CreateCommand())
 //            {
 //                cmd.CommandText = @"SELECT RECORD_ID, USER_ID, COPY_ID, BORROW_DATE, DUE_DATE, STATUS, RENEW_TIMES 
-//                                    FROM ADMINISTRATOR.BORROWRECORD ORDER BY BORROW_DATE DESC";
+//                                    FROM BORROWRECORD ORDER BY BORROW_DATE DESC";
 //                using var rdr = cmd.ExecuteReader();
 //                while (rdr.Read())
 //                {
@@ -162,7 +162,7 @@ using System.Text;
 //            // 用户下拉（简化）
 //            using (var cmd = conn.CreateCommand())
 //            {
-//                cmd.CommandText = "SELECT USER_ID, USER_NAME FROM ADMINISTRATOR.USERS ORDER BY USER_NAME";
+//                cmd.CommandText = "SELECT USER_ID, USER_NAME FROM USERS ORDER BY USER_NAME";
 //                using var rdr = cmd.ExecuteReader();
 //                while (rdr.Read())
 //                {
@@ -177,7 +177,7 @@ using System.Text;
 //            // 图书下拉（简化）
 //            using (var cmd = conn.CreateCommand())
 //            {
-//                cmd.CommandText = "SELECT BOOK_ID, TITLE FROM ADMINISTRATOR.BOOK ORDER BY TITLE";
+//                cmd.CommandText = "SELECT BOOK_ID, TITLE FROM BOOK ORDER BY TITLE";
 //                using var rdr = cmd.ExecuteReader();
 //                while (rdr.Read())
 //                {
@@ -254,10 +254,10 @@ using System.Text;
 
 //                string sql = @"
 //            SELECT u.USER_NAME, b.TITLE, br.BORROW_DATE, br.DUE_DATE, u.EMAIL
-//            FROM ADMINISTRATOR.BORROWRECORD br
-//            JOIN ADMINISTRATOR.USERS u ON br.USER_ID = u.USER_ID
-//            JOIN ADMINISTRATOR.COPY c ON br.COPY_ID = c.COPY_ID
-//            JOIN ADMINISTRATOR.BOOK b ON c.BOOK_ID = b.BOOK_ID
+//            FROM BORROWRECORD br
+//            JOIN USERS u ON br.USER_ID = u.USER_ID
+//            JOIN COPY c ON br.COPY_ID = c.COPY_ID
+//            JOIN BOOK b ON c.BOOK_ID = b.BOOK_ID
 //            WHERE br.RETURN_DATE IS NULL AND br.DUE_DATE < SYSDATE OR br.STATUS = 'overdue'";
 
 //                using var cmd = new OracleCommand(sql, conn);
@@ -388,14 +388,14 @@ namespace WebLibrary.Pages.Admin
 
                 // 生成新的 RECORD_ID（测试用，无序列）
                 int newId;
-                using (var cmd1 = new OracleCommand("SELECT NVL(MAX(RECORD_ID), 0) + 1 FROM ADMINISTRATOR.BORROWRECORD", conn))
+                using (var cmd1 = new OracleCommand("SELECT NVL(MAX(RECORD_ID), 0) + 1 FROM BORROWRECORD", conn))
                 {
                     newId = Convert.ToInt32(cmd1.ExecuteScalar());
                 }
 
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-            INSERT INTO ADMINISTRATOR.BORROWRECORD 
+            INSERT INTO BORROWRECORD 
             (RECORD_ID, USER_ID, COPY_ID, BORROW_DATE, DUE_DATE, STATUS, RENEW_TIMES, RETURN_DATE, LAST_FINED_DATE)
             VALUES (:record_id, :user_id, :copy_id, :borrow_date, :due_date, 'overdue', 0, NULL, NULL)";
 
@@ -443,7 +443,7 @@ namespace WebLibrary.Pages.Admin
             conn.Open();
 
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "DELETE FROM ADMINISTRATOR.BORROWRECORD WHERE RECORD_ID = :id";
+            cmd.CommandText = "DELETE FROM BORROWRECORD WHERE RECORD_ID = :id";
             cmd.Parameters.Add("id", id);
             cmd.ExecuteNonQuery();
 
@@ -478,7 +478,7 @@ namespace WebLibrary.Pages.Admin
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"SELECT RECORD_ID, USER_ID, COPY_ID, BORROW_DATE, DUE_DATE, STATUS, RENEW_TIMES 
-                                    FROM ADMINISTRATOR.BORROWRECORD ORDER BY BORROW_DATE DESC";
+                                    FROM BORROWRECORD ORDER BY BORROW_DATE DESC";
                 using var rdr = cmd.ExecuteReader();
                 while (rdr.Read())
                 {
@@ -499,10 +499,10 @@ namespace WebLibrary.Pages.Admin
             var sqlBuilder = new StringBuilder(@"
                 SELECT br.RECORD_ID, br.USER_ID, br.COPY_ID, br.BORROW_DATE, br.DUE_DATE, br.STATUS, br.RENEW_TIMES,
                        b.BOOK_ID, b.TITLE as BOOK_TITLE, u.USER_NAME
-                FROM ADMINISTRATOR.BORROWRECORD br
-                LEFT JOIN ADMINISTRATOR.COPY c ON br.COPY_ID = c.COPY_ID
-                LEFT JOIN ADMINISTRATOR.BOOK b ON c.BOOK_ID = b.BOOK_ID
-                LEFT JOIN ADMINISTRATOR.USERS u ON br.USER_ID = u.USER_ID
+                FROM BORROWRECORD br
+                LEFT JOIN COPY c ON br.COPY_ID = c.COPY_ID
+                LEFT JOIN BOOK b ON c.BOOK_ID = b.BOOK_ID
+                LEFT JOIN USERS u ON br.USER_ID = u.USER_ID
                 WHERE 1=1");
 
             var parameters = new List<OracleParameter>();
@@ -577,7 +577,7 @@ namespace WebLibrary.Pages.Admin
             // 用户下拉（简化）
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT USER_ID, USER_NAME FROM ADMINISTRATOR.USERS ORDER BY USER_NAME";
+                cmd.CommandText = "SELECT USER_ID, USER_NAME FROM USERS ORDER BY USER_NAME";
                 using var rdr = cmd.ExecuteReader();
                 while (rdr.Read())
                 {
@@ -592,7 +592,7 @@ namespace WebLibrary.Pages.Admin
             // 图书下拉（简化）
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT BOOK_ID, TITLE FROM ADMINISTRATOR.BOOK ORDER BY TITLE";
+                cmd.CommandText = "SELECT BOOK_ID, TITLE FROM BOOK ORDER BY TITLE";
                 using var rdr = cmd.ExecuteReader();
                 while (rdr.Read())
                 {
@@ -672,10 +672,10 @@ namespace WebLibrary.Pages.Admin
 
                 string sql = @"
             SELECT u.USER_NAME, b.TITLE, br.BORROW_DATE, br.DUE_DATE, u.EMAIL
-            FROM ADMINISTRATOR.BORROWRECORD br
-            JOIN ADMINISTRATOR.USERS u ON br.USER_ID = u.USER_ID
-            JOIN ADMINISTRATOR.COPY c ON br.COPY_ID = c.COPY_ID
-            JOIN ADMINISTRATOR.BOOK b ON c.BOOK_ID = b.BOOK_ID
+            FROM BORROWRECORD br
+            JOIN USERS u ON br.USER_ID = u.USER_ID
+            JOIN COPY c ON br.COPY_ID = c.COPY_ID
+            JOIN BOOK b ON c.BOOK_ID = b.BOOK_ID
             WHERE br.RETURN_DATE IS NULL AND br.DUE_DATE < SYSDATE OR br.STATUS = 'overdue'";
 
                 using var cmd = new OracleCommand(sql, conn);

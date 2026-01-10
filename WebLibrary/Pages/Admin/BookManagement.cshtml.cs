@@ -88,7 +88,7 @@ namespace WebLibrary.Pages.Admin
             using (var chk = conn.CreateCommand())
             {
                 chk.BindByName = true;
-                chk.CommandText = "SELECT 1 FROM ADMINISTRATOR.BOOK WHERE ISBN = :isbn";
+                chk.CommandText = "SELECT 1 FROM BOOK WHERE ISBN = :isbn";
                 chk.Parameters.Add("isbn", NewBook.ISBN);
                 if (chk.ExecuteScalar() != null)
                 {
@@ -99,7 +99,7 @@ namespace WebLibrary.Pages.Admin
 
             /* 1. 先插入 BOOK（占位 0，下面立即更新） */
             const string sql = @"
-INSERT INTO ADMINISTRATOR.BOOK
+INSERT INTO BOOK
  (BOOK_ID, TITLE, AUTHOR, ISBN, PUBLISHER,
   PUBLICATION_DATE, CATEGORY_ID, DESCRIPTION,
   TOTAL_COPIES, AVAILABLE_COPIES)
@@ -129,7 +129,7 @@ RETURNING BOOK_ID INTO :bookId";
             {
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
-INSERT INTO ADMINISTRATOR.COPY
+INSERT INTO COPY
 (COPY_ID, BOOK_ID, STATUS, SHELF_LOCATION, CREATED_BY, CREATED_AT)
 VALUES (BOOK_COPY_SEQ.NEXTVAL, :bookId, 'AVAILABLE', :loc, :creator, SYSDATE)";
                 cmd.Parameters.Add("bookId", bookId);
@@ -142,9 +142,9 @@ VALUES (BOOK_COPY_SEQ.NEXTVAL, :bookId, 'AVAILABLE', :loc, :creator, SYSDATE)";
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"
-UPDATE ADMINISTRATOR.BOOK
-   SET TOTAL_COPIES     = (SELECT COUNT(*) FROM ADMINISTRATOR.COPY WHERE BOOK_ID = :id),
-       AVAILABLE_COPIES = (SELECT COUNT(*) FROM ADMINISTRATOR.COPY WHERE BOOK_ID = :id AND STATUS = 'AVAILABLE')
+UPDATE BOOK
+   SET TOTAL_COPIES     = (SELECT COUNT(*) FROM COPY WHERE BOOK_ID = :id),
+       AVAILABLE_COPIES = (SELECT COUNT(*) FROM COPY WHERE BOOK_ID = :id AND STATUS = 'AVAILABLE')
  WHERE BOOK_ID = :id";
                 cmd.Parameters.Add("id", bookId);
                 cmd.ExecuteNonQuery();
@@ -178,7 +178,7 @@ UPDATE ADMINISTRATOR.BOOK
             using (var cmd = conn.CreateCommand())
             {
                 cmd.BindByName = true;
-                cmd.CommandText = "SELECT TOTAL_COPIES FROM ADMINISTRATOR.BOOK WHERE BOOK_ID = :id";
+                cmd.CommandText = "SELECT TOTAL_COPIES FROM BOOK WHERE BOOK_ID = :id";
                 cmd.Parameters.Add("id", NewBook.BookId);
                 var r = cmd.ExecuteScalar();
                 if (r == null || r == DBNull.Value)
@@ -193,7 +193,7 @@ UPDATE ADMINISTRATOR.BOOK
             using (var dup = conn.CreateCommand())
             {
                 dup.BindByName = true;
-                dup.CommandText = "SELECT 1 FROM ADMINISTRATOR.BOOK WHERE ISBN = :isbn AND BOOK_ID <> :id";
+                dup.CommandText = "SELECT 1 FROM BOOK WHERE ISBN = :isbn AND BOOK_ID <> :id";
                 dup.Parameters.Add("isbn", NewBook.ISBN);
                 dup.Parameters.Add("id", NewBook.BookId);
                 if (dup.ExecuteScalar() != null)
@@ -212,14 +212,14 @@ UPDATE ADMINISTRATOR.BOOK
                 using var cmd = conn.CreateCommand();
                 cmd.BindByName = true;
                 cmd.CommandText = @"
-DELETE FROM ADMINISTRATOR.COPY
+DELETE FROM COPY
 WHERE COPY_ID IN (
     SELECT COPY_ID FROM (
         SELECT COPY_ID
-          FROM ADMINISTRATOR.COPY
+          FROM COPY
          WHERE BOOK_ID = :bookId
            AND STATUS = 'AVAILABLE'
-           AND COPY_ID NOT IN (SELECT COPY_ID FROM ADMINISTRATOR.BORROWRECORD)
+           AND COPY_ID NOT IN (SELECT COPY_ID FROM BORROWRECORD)
          ORDER BY COPY_ID
     )
     WHERE ROWNUM <= :cnt)";
@@ -240,7 +240,7 @@ WHERE COPY_ID IN (
                 int maxId;
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT NVL(MAX(COPY_ID),0) FROM ADMINISTRATOR.COPY";
+                    cmd.CommandText = "SELECT NVL(MAX(COPY_ID),0) FROM COPY";
                     maxId = Convert.ToInt32(cmd.ExecuteScalar());
                 }
 
@@ -256,7 +256,7 @@ WHERE COPY_ID IN (
                 {
                     using var cmd = conn.CreateCommand();
                     cmd.CommandText = @"
-INSERT INTO ADMINISTRATOR.COPY
+INSERT INTO COPY
 (COPY_ID, BOOK_ID, STATUS, SHELF_LOCATION, CREATED_BY, CREATED_AT)
 VALUES
 (BOOK_COPY_SEQ.NEXTVAL, :bookId, 'AVAILABLE', :loc, :creater, SYSDATE)";
@@ -269,7 +269,7 @@ VALUES
 
             /* -------------- 6. 更新图书主表 -------------- */
             const string upd = @"
-UPDATE ADMINISTRATOR.BOOK
+UPDATE BOOK
    SET TITLE = :title,
        AUTHOR = :author,
        ISBN = :isbn,
@@ -279,7 +279,7 @@ UPDATE ADMINISTRATOR.BOOK
        DESCRIPTION = :descr,
        TOTAL_COPIES = :total,
        AVAILABLE_COPIES = (
-           SELECT COUNT(*) FROM ADMINISTRATOR.COPY
+           SELECT COUNT(*) FROM COPY
             WHERE BOOK_ID = :id AND STATUS = 'AVAILABLE')
  WHERE BOOK_ID = :id";
             using (var cmd = new OracleCommand(upd, conn) { BindByName = true })
@@ -312,7 +312,7 @@ UPDATE ADMINISTRATOR.BOOK
             int loanedCount;
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT COUNT(*) FROM ADMINISTRATOR.COPY WHERE BOOK_ID = :bookId AND STATUS = 'BORROWED'";
+                cmd.CommandText = "SELECT COUNT(*) FROM COPY WHERE BOOK_ID = :bookId AND STATUS = 'BORROWED'";
                 cmd.Parameters.Add("bookId", id);
                 loanedCount = Convert.ToInt32(cmd.ExecuteScalar());
             }
@@ -327,9 +327,9 @@ UPDATE ADMINISTRATOR.BOOK
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText = @"
-DELETE FROM ADMINISTRATOR.COPY
+DELETE FROM COPY
 WHERE BOOK_ID = :bookId
-  AND COPY_ID NOT IN (SELECT COPY_ID FROM ADMINISTRATOR.BORROWRECORD)";
+  AND COPY_ID NOT IN (SELECT COPY_ID FROM BORROWRECORD)";
                 cmd.Parameters.Add("bookId", id);
                 int deleted = cmd.ExecuteNonQuery();
 
@@ -343,7 +343,7 @@ WHERE BOOK_ID = :bookId
             /* 3. 再删图书本身 */
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "DELETE FROM ADMINISTRATOR.BOOK WHERE BOOK_ID = :id";
+                cmd.CommandText = "DELETE FROM BOOK WHERE BOOK_ID = :id";
                 cmd.Parameters.Add("id", id);
                 cmd.ExecuteNonQuery();
             }
@@ -366,11 +366,11 @@ WHERE BOOK_ID = :bookId
             using var cmd = conn.CreateCommand();
             cmd.BindByName = true;
             cmd.CommandText = @"
-INSERT INTO ADMINISTRATOR.CATEGORY (CATEGORY_ID, CATEGORY_NAME)
+INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME)
 SELECT CATEGORY_SEQ.NEXTVAL, :name
   FROM dual
  WHERE NOT EXISTS (
-       SELECT 1 FROM ADMINISTRATOR.CATEGORY WHERE CATEGORY_NAME = :name
+       SELECT 1 FROM CATEGORY WHERE CATEGORY_NAME = :name
 )";
             cmd.Parameters.Add("name", categoryName);
             var rows = cmd.ExecuteNonQuery();
@@ -397,8 +397,8 @@ SELECT CATEGORY_SEQ.NEXTVAL, :name
             /* ---- 先算总数 ---- */
             string countSql = @"
 SELECT COUNT(*)
-  FROM ADMINISTRATOR.BOOK b
-  LEFT JOIN ADMINISTRATOR.CATEGORY c ON b.CATEGORY_ID = c.CATEGORY_ID
+  FROM BOOK b
+  LEFT JOIN CATEGORY c ON b.CATEGORY_ID = c.CATEGORY_ID
  WHERE 1 = 1";
 
             var parameters = new List<OracleParameter>();
@@ -441,8 +441,8 @@ SELECT COUNT(*)
 SELECT b.BOOK_ID, b.TITLE, b.AUTHOR, b.ISBN, b.PUBLISHER,
        b.PUBLICATION_DATE, b.CATEGORY_ID, b.DESCRIPTION,
        b.TOTAL_COPIES, b.AVAILABLE_COPIES, c.CATEGORY_NAME
-  FROM ADMINISTRATOR.BOOK b
-  LEFT JOIN ADMINISTRATOR.CATEGORY c
+  FROM BOOK b
+  LEFT JOIN CATEGORY c
     ON b.CATEGORY_ID = c.CATEGORY_ID
  WHERE 1 = 1";
 
@@ -511,7 +511,7 @@ SELECT b.BOOK_ID, b.TITLE, b.AUTHOR, b.ISBN, b.PUBLISHER,
             CategoryOptions.Clear();
             using var conn = new OracleConnection(_cfg.GetConnectionString("OracleDb"));
             conn.Open();
-            const string sql = "SELECT CATEGORY_ID, CATEGORY_NAME FROM ADMINISTRATOR.CATEGORY ORDER BY CATEGORY_NAME";
+            const string sql = "SELECT CATEGORY_ID, CATEGORY_NAME FROM CATEGORY ORDER BY CATEGORY_NAME";
             using var cmd = new OracleCommand(sql, conn);
             using var rdr = cmd.ExecuteReader();
             while (rdr.Read())

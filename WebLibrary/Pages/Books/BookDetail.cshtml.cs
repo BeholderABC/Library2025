@@ -30,7 +30,7 @@ namespace WebLibrary.Pages.Books
             {
                 using var conn = new OracleConnection(_cfg.GetConnectionString("OracleDb"));
                 await conn.OpenAsync();
-                using var cmd = new OracleCommand(@"SELECT b.BOOK_ID, b.TITLE, b.AUTHOR, b.ISBN, b.CATEGORY_ID, b.PUBLISHER, b.PUBLICATION_DATE, b.DESCRIPTION, b.BOOK_RATING, b.TOTAL_COPIES, b.AVAILABLE_COPIES FROM ADMINISTRATOR.BOOK b WHERE b.BOOK_ID = :id", conn);
+                using var cmd = new OracleCommand(@"SELECT b.BOOK_ID, b.TITLE, b.AUTHOR, b.ISBN, b.CATEGORY_ID, b.PUBLISHER, b.PUBLICATION_DATE, b.DESCRIPTION, b.BOOK_RATING, b.TOTAL_COPIES, b.AVAILABLE_COPIES FROM BOOK b WHERE b.BOOK_ID = :id", conn);
                 cmd.Parameters.Add("id", id);
                 using var reader = await cmd.ExecuteReaderAsync();
                 if (await reader.ReadAsync())

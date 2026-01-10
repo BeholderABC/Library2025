@@ -70,8 +70,8 @@ VALUES (:userid, :msgcontent, 0, SYSDATE, :senderid, :username)";
                 string uid = reader.GetString(0);
                 using var insertCmd = conn.CreateCommand();
                 insertCmd.CommandText = $@"
-INSERT INTO {table} (USER_ID, CONTENT, IS_READ, CREATE_TIME, SENDER_ID,USER_NAME)
-VALUES (:r_uid, :r_content, 0, SYSDATE, :senderid,:username)";
+INSERT INTO {table} (ID, USER_ID, CONTENT, IS_READ, CREATE_TIME, SENDER_ID,USER_NAME)
+VALUES (NOTIFICATION_SEQ.NEXTVAL,:r_uid, :r_content, 0, SYSDATE, :senderid,:username)";
                 insertCmd.Parameters.Add("r_uid", uid);
                 insertCmd.Parameters.Add("r_content", content);
                 insertCmd.Parameters.Add("senderid", senderId);

@@ -357,8 +357,8 @@ namespace WebLibrary.Pages.Books
                            b.PUBLISHER, b.PUBLICATION_DATE, b.DESCRIPTION, b.BOOK_RATING,
                            b.TOTAL_COPIES, b.AVAILABLE_COPIES,
                            c.CATEGORY_NAME
-                    FROM ADMINISTRATOR.BOOK b
-                    LEFT JOIN ADMINISTRATOR.CATEGORY c ON b.CATEGORY_ID = c.CATEGORY_ID
+                    FROM BOOK b
+                    LEFT JOIN CATEGORY c ON b.CATEGORY_ID = c.CATEGORY_ID
                     WHERE (UPPER(b.TITLE) LIKE :keyword 
                            OR UPPER(b.AUTHOR) LIKE :keyword 
                            OR UPPER(b.ISBN) LIKE :keyword
@@ -410,7 +410,7 @@ namespace WebLibrary.Pages.Books
                     SELECT BOOK_ID, TITLE, AUTHOR, ISBN, CATEGORY_ID, 
                            PUBLISHER, PUBLICATION_DATE, DESCRIPTION, BOOK_RATING,
                            TOTAL_COPIES, AVAILABLE_COPIES
-                    FROM ADMINISTRATOR.BOOK
+                    FROM BOOK
                     WHERE (UPPER(TITLE) LIKE :keyword 
                            OR UPPER(AUTHOR) LIKE :keyword 
                            OR UPPER(ISBN) LIKE :keyword)";
@@ -494,8 +494,8 @@ namespace WebLibrary.Pages.Books
                            b.PUBLISHER, b.PUBLICATION_DATE, b.DESCRIPTION, b.BOOK_RATING,
                            b.TOTAL_COPIES, b.AVAILABLE_COPIES,
                            c.CATEGORY_NAME
-                    FROM ADMINISTRATOR.BOOK b
-                    LEFT JOIN ADMINISTRATOR.CATEGORY c ON b.CATEGORY_ID = c.CATEGORY_ID";
+                    FROM BOOK b
+                    LEFT JOIN CATEGORY c ON b.CATEGORY_ID = c.CATEGORY_ID";
 
                 // 添加搜索条件
                 if (conditions.Count > 0)
@@ -599,7 +599,7 @@ namespace WebLibrary.Pages.Books
                     SELECT BOOK_ID, TITLE, AUTHOR, ISBN, CATEGORY_ID, 
                            PUBLISHER, PUBLICATION_DATE, DESCRIPTION, BOOK_RATING,
                            TOTAL_COPIES, AVAILABLE_COPIES
-                    FROM ADMINISTRATOR.BOOK";
+                    FROM BOOK";
 
                 // 添加搜索条件
                 if (conditions.Count > 0)

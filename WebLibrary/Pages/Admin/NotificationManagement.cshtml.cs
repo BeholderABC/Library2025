@@ -61,7 +61,7 @@ namespace WebLibrary.Pages.Admin
             switch (TargetType)
             {
                 case "All":
-                    _notificationService.SendToAll(Content,senderId,ReceiverName);
+                    _notificationService.SendToAll(Content,senderId,"所有人");
 
                     TempData["Message"] = "已发送给所有用户。";
 
@@ -74,7 +74,7 @@ namespace WebLibrary.Pages.Admin
                  }
                     else
                     {
-                        _notificationService.SendToRole(Role, Content,senderId,ReceiverName);
+                        _notificationService.SendToRole(Role, Content,senderId,Role);
 
                         TempData["Message"] = $"已发送给角色「{Role}」。";
                   }

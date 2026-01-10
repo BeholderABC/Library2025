@@ -56,7 +56,7 @@ namespace WebLibrary.Pages.Admin
             using (var cmd = conn.CreateCommand())
             {
                 cmd.BindByName = true;
-                cmd.CommandText = "SELECT COUNT(*) FROM ADMINISTRATOR.COPY WHERE COPY_ID = :copyId AND STATUS = :borrowed";
+                cmd.CommandText = "SELECT COUNT(*) FROM COPY WHERE COPY_ID = :copyId AND STATUS = :borrowed";
                 cmd.Parameters.Add("copyId", copyId);
                 cmd.Parameters.Add("borrowed", STATUS_BORROWED);
                 loanedCount = Convert.ToInt32(cmd.ExecuteScalar());
@@ -72,7 +72,7 @@ namespace WebLibrary.Pages.Admin
             using (var cmd = conn.CreateCommand())
             {
                 cmd.BindByName = true;
-                cmd.CommandText = "UPDATE ADMINISTRATOR.COPY SET STATUS = :status WHERE COPY_ID = :copyId";
+                cmd.CommandText = "UPDATE COPY SET STATUS = :status WHERE COPY_ID = :copyId";
                 cmd.Parameters.Add("status", STATUS_DISCARDED);
                 cmd.Parameters.Add("copyId", copyId);
                 cmd.ExecuteNonQuery();
@@ -114,7 +114,7 @@ namespace WebLibrary.Pages.Admin
 INSERT ALL
 ";
             for (int i = 0; i < NewCopyCount; i++)
-                cmd.CommandText += " INTO ADMINISTRATOR.COPY (COPY_ID, BOOK_ID, STATUS, SHELF_LOCATION, CREATED_BY, CREATED_AT) VALUES (COPY_SEQ.NEXTVAL, :bookId, :status, :location, :createdBy, SYSDATE)";
+                cmd.CommandText += " INTO COPY (COPY_ID, BOOK_ID, STATUS, SHELF_LOCATION, CREATED_BY, CREATED_AT) VALUES (COPY_SEQ.NEXTVAL, :bookId, :status, :location, :createdBy, SYSDATE)";
 
             cmd.CommandText += " SELECT 1 FROM DUAL";
             cmd.Parameters.Add("bookId", BookId);
@@ -136,7 +136,7 @@ INSERT ALL
 
             using var cmd = conn.CreateCommand();
             cmd.BindByName = true;
-            cmd.CommandText = "UPDATE ADMINISTRATOR.COPY SET STATUS = :status WHERE COPY_ID = :copyId";
+            cmd.CommandText = "UPDATE COPY SET STATUS = :status WHERE COPY_ID = :copyId";
             cmd.Parameters.Add("status", status);
             cmd.Parameters.Add("copyId", copyId);
             cmd.ExecuteNonQuery();
@@ -149,9 +149,9 @@ INSERT ALL
             using var cmd = conn.CreateCommand();
             cmd.BindByName = true;
             cmd.CommandText = @"
-UPDATE ADMINISTRATOR.BOOK
+UPDATE BOOK
    SET AVAILABLE_COPIES = (
-       SELECT COUNT(*) FROM ADMINISTRATOR.COPY
+       SELECT COUNT(*) FROM COPY
         WHERE BOOK_ID = :bookId
           AND STATUS = :available)
  WHERE BOOK_ID = :bookId";
@@ -165,13 +165,13 @@ UPDATE ADMINISTRATOR.BOOK
             using var cmd = conn.CreateCommand();
             cmd.BindByName = true;
             cmd.CommandText = @"
-UPDATE ADMINISTRATOR.BOOK
+UPDATE BOOK
    SET TOTAL_COPIES = (
-       SELECT COUNT(*) FROM ADMINISTRATOR.COPY
+       SELECT COUNT(*) FROM COPY
         WHERE BOOK_ID = :bookId
           AND STATUS <> :discarded),
        AVAILABLE_COPIES = (
-       SELECT COUNT(*) FROM ADMINISTRATOR.COPY
+       SELECT COUNT(*) FROM COPY
         WHERE BOOK_ID = :bookId
           AND STATUS = :available)
  WHERE BOOK_ID = :bookId";
@@ -189,8 +189,8 @@ UPDATE ADMINISTRATOR.BOOK
             cmd.BindByName = true;
             cmd.CommandText = @"SELECT b.BOOK_ID, b.TITLE, b.AUTHOR, b.ISBN, b.TOTAL_COPIES,
                                        b.AVAILABLE_COPIES, c.CATEGORY_NAME
-                                  FROM ADMINISTRATOR.BOOK b
-                             LEFT JOIN ADMINISTRATOR.CATEGORY c
+                                  FROM BOOK b
+                             LEFT JOIN CATEGORY c
                                     ON b.CATEGORY_ID = c.CATEGORY_ID
                                  WHERE b.BOOK_ID = :bookId";
             cmd.Parameters.Add("bookId", BookId);
@@ -216,7 +216,7 @@ UPDATE ADMINISTRATOR.BOOK
             cmd.BindByName = true;
             cmd.CommandText = @"
 SELECT COPY_ID, BOOK_ID, STATUS, SHELF_LOCATION, CREATED_BY, CREATED_AT
-  FROM ADMINISTRATOR.COPY
+  FROM COPY
  WHERE BOOK_ID = :bookId
    AND STATUS <> :discarded
  ORDER BY COPY_ID";

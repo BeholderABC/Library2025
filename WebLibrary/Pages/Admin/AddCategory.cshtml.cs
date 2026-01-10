@@ -25,7 +25,7 @@ namespace WebLibrary.Pages.Admin
 
             // 检查是否已存在
             using var chk = conn.CreateCommand();
-            chk.CommandText = "SELECT 1 FROM ADMINISTRATOR.CATEGORY WHERE CATEGORY_NAME = :name";
+            chk.CommandText = "SELECT 1 FROM CATEGORY WHERE CATEGORY_NAME = :name";
             chk.Parameters.Add("name", CategoryName);
             if (chk.ExecuteScalar() != null)
             {
@@ -35,7 +35,7 @@ namespace WebLibrary.Pages.Admin
 
             // 插入新分类
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT INTO ADMINISTRATOR.CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES (CATEGORY_SEQ.NEXTVAL, :name)";
+            cmd.CommandText = "INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES (CATEGORY_SEQ.NEXTVAL, :name)";
             cmd.Parameters.Add("name", CategoryName);
             cmd.ExecuteNonQuery();
 

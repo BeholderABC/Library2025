@@ -26,11 +26,11 @@ namespace WebLibrary.Pages.Admin
             using var cmd = conn.CreateCommand();
 
             // 获取下一个 ID
-            cmd.CommandText = "SELECT ADMINISTRATOR.CATEGORY_SEQ.NEXTVAL FROM DUAL";
+            cmd.CommandText = "SELECT CATEGORY_SEQ.NEXTVAL FROM DUAL";
             var nextId = Convert.ToInt32(cmd.ExecuteScalar());
 
             // 插入新分类
-            cmd.CommandText = "INSERT INTO ADMINISTRATOR.CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES (:id, :name)";
+            cmd.CommandText = "INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES (:id, :name)";
             cmd.Parameters.Add("id", nextId);
             cmd.Parameters.Add("name", categoryName);
             cmd.ExecuteNonQuery();
@@ -43,7 +43,7 @@ namespace WebLibrary.Pages.Admin
             using var conn = new OracleConnection(_cfg.GetConnectionString("OracleDb"));
             conn.Open();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "UPDATE ADMINISTRATOR.CATEGORY SET CATEGORY_NAME = :name WHERE CATEGORY_ID = :id";
+            cmd.CommandText = "UPDATE CATEGORY SET CATEGORY_NAME = :name WHERE CATEGORY_ID = :id";
             cmd.Parameters.Add("name", categoryName);
             cmd.Parameters.Add("id", id);
             cmd.ExecuteNonQuery();
@@ -59,7 +59,7 @@ namespace WebLibrary.Pages.Admin
             int refCount;
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT COUNT(*) FROM ADMINISTRATOR.BOOK WHERE CATEGORY_ID = :id";
+                cmd.CommandText = "SELECT COUNT(*) FROM BOOK WHERE CATEGORY_ID = :id";
                 cmd.Parameters.Add("id", id);
                 refCount = Convert.ToInt32(cmd.ExecuteScalar());
             }
@@ -73,7 +73,7 @@ namespace WebLibrary.Pages.Admin
             /* 2. 未被引用，真正删除 */
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "DELETE FROM ADMINISTRATOR.CATEGORY WHERE CATEGORY_ID = :id";
+                cmd.CommandText = "DELETE FROM CATEGORY WHERE CATEGORY_ID = :id";
                 cmd.Parameters.Add("id", id);
                 cmd.ExecuteNonQuery();
             }
@@ -87,7 +87,7 @@ namespace WebLibrary.Pages.Admin
             using var conn = new OracleConnection(_cfg.GetConnectionString("OracleDb"));
             conn.Open();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT CATEGORY_ID, CATEGORY_NAME FROM ADMINISTRATOR.CATEGORY ORDER BY CATEGORY_NAME";
+            cmd.CommandText = "SELECT CATEGORY_ID, CATEGORY_NAME FROM CATEGORY ORDER BY CATEGORY_NAME";
             using var rdr = cmd.ExecuteReader();
             while (rdr.Read())
             {

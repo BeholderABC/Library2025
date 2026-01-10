@@ -31,42 +31,10 @@ namespace WebLibrary.Pages.Shared.Utils
             conn.Open();
 
             // 1. 读取角色借期上下限
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = @"
-SELECT MIN_DAYS, MAX_DAYS,ORIGIN_DAY
-  FROM BORROW_RULES
- WHERE ROLE_NAME = :role";
-                cmd.Parameters.Add("role", role);
-                using var reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    minDays = reader.GetInt32(0);
-                    maxDays = reader.GetInt32(1);
-                    requestedDays = reader.GetInt32(2);
-                }
-            }
-
-            Console.WriteLine($"role:{role},minDays:{minDays},maxDays:{maxDays},requestedDays:{requestedDays}");
-
+            
 
             // 2. 读取加分规则（取第一条）
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = @"
-SELECT BONUS_THRESHOLD, BONUS_DAYS,PENALTY_THRESHOLD,PENALTY_DAYS
-  FROM CREDIT_RULES
- WHERE RULE_ID = (SELECT MIN(RULE_ID) FROM CREDIT_RULES)";
-                using var reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    bonusThreshold = reader.GetInt32(0);
-                    bonusDays = reader.GetInt32(1);
-                    penaltyThreshold = reader.GetInt32(2);
-                    penaltyDays = reader.GetInt32(3);
-
-                }
-            }
+            
             int days=requestedDays;
             // 3. 如果信用分足够，则加上 bonusDays
             if (creditScore >= bonusThreshold)
